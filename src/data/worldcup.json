@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-30T09:59:17.404Z",
+  "updated": "2026-06-30T17:18:49.513Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -23,9 +23,9 @@
       "score": "1–1 (2–3 pens)"
     },
     "CIV|NOR": {
-      "status": "upcoming",
+      "status": "live",
       "winner": null,
-      "score": null
+      "score": "in progress"
     },
     "FRA|SWE": {
       "status": "upcoming",
