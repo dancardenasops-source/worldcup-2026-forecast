@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-30T21:09:36.757Z",
+  "updated": "2026-06-30T22:40:47.605Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -29,7 +29,7 @@
     },
     "FRA|SWE": {
       "status": "live",
-      "winner": null,
+      "winner": "FRA",
       "score": "in progress"
     },
     "ECU|MEX": {
@@ -548,6 +548,12 @@
   },
   "scorers": [
     {
+      "name": "Kylian Mbappé",
+      "team": "FRA",
+      "goals": 6,
+      "assists": 2
+    },
+    {
       "name": "Lionel Messi",
       "team": "ARG",
       "goals": 6,
@@ -566,16 +572,10 @@
       "assists": 1
     },
     {
-      "name": "Kylian Mbappé",
-      "team": "FRA",
-      "goals": 4,
-      "assists": 2
-    },
-    {
       "name": "Ousmane Dembélé",
       "team": "FRA",
       "goals": 4,
-      "assists": 1
+      "assists": 2
     },
     {
       "name": "Ismael Saibari",
