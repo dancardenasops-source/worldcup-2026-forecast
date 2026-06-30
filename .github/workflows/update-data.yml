@@ -1,0 +1,47 @@
+name: Update World Cup data
+
+# Pulls fresh results from football-data.org and commits them to
+# src/data/worldcup.json. The commit triggers Cloudflare's connected build,
+# which redeploys the site with the new data.
+
+on:
+  schedule:
+    - cron: "*/15 * * * *" # every 15 min (GitHub may delay under load)
+  workflow_dispatch: {} # lets you run it on demand from the Actions tab
+
+# Allow the job to push the updated data file back to the repo.
+permissions:
+  contents: write
+
+# Don't pile up overlapping runs.
+concurrency:
+  group: update-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Fetch latest data
+        env:
+          FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
+        run: node scripts/fetch-data.mjs
+
+      - name: Commit if changed
+        run: |
+          git config user.name "worldcup-data-bot"
+          git config user.email "actions@github.com"
+          if [[ -n "$(git status --porcelain src/data/worldcup.json)" ]]; then
+            git add src/data/worldcup.json
+            git commit -m "data: refresh World Cup results [skip ci]"
+            git push
+            echo "Pushed updated data."
+          else
+            echo "No changes to commit."
+          fi

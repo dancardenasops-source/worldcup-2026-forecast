@@ -1,11 +1,17 @@
 import { useState, useMemo } from "react";
+import LIVE from "../data/worldcup.json";
 
 /* =============================================================================
    FIFA WORLD CUP 2026 — STATISTICS & FORECAST DASHBOARD
-   Data verified June 29, 2026 against FIFA, Yahoo Sports, FOX Sports, NBC Sports,
-   CBS Sports, ESPN and Wikipedia. Title probabilities are a de-vigged consensus of
-   three sportsbooks (FanDuel, BetMGM, DraftKings). Forward-looking numbers are
-   MODEL ESTIMATES, not predictions of fact. Full method in the Methodology panel.
+   Title probabilities are a de-vigged consensus of three sportsbooks (FanDuel,
+   BetMGM, DraftKings) and are hand-maintained — no results API carries odds.
+   Forward-looking numbers are MODEL ESTIMATES, not predictions of fact.
+
+   FACTUAL data (knockout results, group standings, Golden Boot) is refreshed
+   automatically: a scheduled GitHub Action (scripts/fetch-data.mjs) pulls live
+   numbers from football-data.org into src/data/worldcup.json, which is imported
+   below as LIVE and overlaid on the baked-in June 29 snapshot. If LIVE is empty
+   (first run, or the feed is down) the snapshot shows through unchanged.
    ============================================================================= */
 
 /* ---- TEAMS: code -> {name, flag, group, finish, strength} -------------------
@@ -49,8 +55,10 @@ const TEAMS = {
 };
 const S = Object.fromEntries(Object.entries(TEAMS).map(([k, v]) => [k, v.strength]));
 
-/* ---- ROUND OF 32: 16 matches (official slots 73–88). status + result baked in. */
-const R32 = [
+/* ---- ROUND OF 32: 16 matches (official slots 73–88). The fixtures, slots,
+   dates and venues are fixed; status/winner/score start from the June 29
+   snapshot and are overlaid with live data below. -------------------------- */
+const R32_BASE = [
   { slot: 73, home: "RSA", away: "CAN", date: "Jun 28", venue: "Los Angeles", status: "done", winner: "CAN", score: "1–1 (3–4 pens)" },
   { slot: 74, home: "GER", away: "PAR", date: "Jun 29", venue: "Boston", status: "done", winner: "PAR", score: "1–1 (2–4 pens)" },
   { slot: 75, home: "NED", away: "MAR", date: "Jun 29", venue: "Monterrey", status: "live", winner: null, score: "in progress" },
@@ -69,6 +77,14 @@ const R32 = [
   { slot: 88, home: "AUS", away: "EGY", date: "Jul 3", venue: "Dallas", status: "upcoming", winner: null },
 ];
 
+/* Overlay live knockout results (keyed by sorted team-pair) onto the snapshot.
+   A live entry replaces status/winner/score; missing entries keep the snapshot. */
+const pairKey = (a, b) => [a, b].sort().join("|");
+const R32 = R32_BASE.map((m) => {
+  const live = LIVE.results?.[pairKey(m.home, m.away)];
+  return live ? { ...m, status: live.status, winner: live.winner ?? null, score: live.score ?? m.score } : m;
+});
+
 /* Bracket wiring (winner-of). R16 pairings confirmed via Yahoo Sports; QF/SF/Final
    follow the fixed FIFA bracket. */
 const R16_PAIRS = [
@@ -78,7 +94,7 @@ const QF_PAIRS = [[0, 2], [1, 3], [4, 5], [6, 7]];
 const SF_PAIRS = [[0, 1], [2, 3]];
 
 /* ---- FINAL GROUP STANDINGS (A–L) -------------------------------------------- */
-const GROUPS = {
+const GROUPS_BASE = {
   A: [["MEX", 3, 0, 0, 6, 9, "W"], ["RSA", 1, 1, 1, -1, 4, "RU"], ["KOR", 1, 0, 2, -1, 3, "out"], ["CZE", 0, 1, 2, -4, 1, "out"]],
   B: [["SUI", 2, 1, 0, 4, 7, "W"], ["CAN", 1, 1, 1, 5, 4, "RU"], ["BIH", 1, 1, 1, -1, 4, "3rd"], ["QAT", 0, 1, 2, -8, 1, "out"]],
   C: [["BRA", 2, 1, 0, 6, 7, "W"], ["MAR", 2, 1, 0, 3, 7, "RU"], ["SCO", 1, 0, 2, -3, 3, "out"], ["HAI", 0, 0, 3, -6, 0, "out"]],
@@ -92,6 +108,8 @@ const GROUPS = {
   K: [["COL", 2, 1, 0, 4, 7, "W"], ["POR", 2, 1, 0, 5, 7, "RU"], ["COD", 1, 1, 1, 0, 4, "3rd"], ["UZB", 0, 1, 2, -9, 1, "out"]],
   L: [["ENG", 2, 1, 0, 5, 7, "W"], ["CRO", 2, 0, 1, 3, 6, "RU"], ["GHA", 1, 1, 1, -1, 4, "3rd"], ["PAN", 0, 0, 3, -7, 0, "out"]],
 };
+/* Live standings replace the whole table when present; else fall back. */
+const GROUPS = LIVE.groups && Object.keys(LIVE.groups).length ? LIVE.groups : GROUPS_BASE;
 const GROUP_NAMES = {
   KOR: "South Korea", CZE: "Czechia", QAT: "Qatar", SCO: "Scotland", HAI: "Haiti",
   TUR: "Türkiye", CUW: "Curaçao", TUN: "Tunisia", IRN: "Iran", NZL: "New Zealand",
@@ -102,7 +120,7 @@ const flagFor = (c) => (TEAMS[c] ? TEAMS[c].flag : "⚽");
 const nameFor = (c) => (TEAMS[c] ? TEAMS[c].name : GROUP_NAMES[c] || c);
 
 /* ---- TOP SCORERS (Golden Boot, after group stage) --------------------------- */
-const SCORERS = [
+const SCORERS_BASE = [
   { name: "Lionel Messi", team: "ARG", goals: 6, assists: 1 },
   { name: "Kylian Mbappé", team: "FRA", goals: 4, assists: 2 },
   { name: "Ousmane Dembélé", team: "FRA", goals: 4, assists: 0 },
@@ -111,6 +129,14 @@ const SCORERS = [
   { name: "Deniz Undav", team: "GER", goals: 3, assists: 2 },
   { name: "Jonathan David", team: "CAN", goals: 3, assists: 0 },
 ];
+const SCORERS = LIVE.scorers && LIVE.scorers.length ? LIVE.scorers : SCORERS_BASE;
+
+/* "Updated" label: the live fetch timestamp if we have one, else the snapshot date. */
+const UPDATED_LABEL = LIVE.updated
+  ? new Date(LIVE.updated).toLocaleString("en-US", {
+      month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZoneName: "short",
+    })
+  : "Jun 29, 2026";
 
 /* =============================================================================
    PROBABILITY MODEL — strength-ratio match model, propagated through the bracket.
@@ -508,7 +534,7 @@ export default function Dashboard() {
               Model favorite:
               <strong style={{ color: C.gold, fontSize: 14 }}>{flagFor(champLeader[0])} {nameFor(champLeader[0])} {pct(champLeader[1])}</strong>
             </span>
-            <span>Updated Jun 29, 2026</span>
+            <span>Updated {UPDATED_LABEL}</span>
           </div>
 
           {/* TABS */}
