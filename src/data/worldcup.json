@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-30T22:40:47.605Z",
+  "updated": "2026-06-30T23:54:26.595Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -28,9 +28,9 @@
       "score": "1–2"
     },
     "FRA|SWE": {
-      "status": "live",
+      "status": "done",
       "winner": "FRA",
-      "score": "in progress"
+      "score": "3–0"
     },
     "ECU|MEX": {
       "status": "upcoming",
