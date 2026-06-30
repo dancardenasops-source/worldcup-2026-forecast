@@ -186,13 +186,18 @@ function buildModel() {
 }
 
 /* =============================================================================
-   PRESENTATION
+   PRESENTATION — "floodlit matchday": a green-biased night-pitch ground, a single
+   bold coral accent for energy/live state, gold reserved for the champion and the
+   Golden Boot, and the advancement table rendered as a probability heatmap.
    ============================================================================= */
 const C = {
-  ink: "#0B1622", panel: "#13212F", panel2: "#1A2C3D", line: "#273C4F",
-  text: "#EAF1F8", muted: "#8298AD", faint: "#5E7488",
-  green: "#27D17F", greenDim: "#176B45", gold: "#F0B43C", red: "#E5604D", blue: "#5FA8E0",
+  pitch: "#0B100E", panel: "#131A16", panel2: "#18221D", line: "#25322B",
+  text: "#EFF4F1", muted: "#8A9A91", faint: "#5C6B63",
+  coral: "#FF5A3C", coralDeep: "#C23A22", cyan: "#36E0D4", gold: "#F4C04E", good: "#3BD17A",
 };
+const FD = "'Oswald','Archivo Narrow',system-ui,sans-serif"; // display / broadcast
+const FB = "'Inter',system-ui,-apple-system,sans-serif";      // body
+const FM = "'IBM Plex Mono',ui-monospace,monospace";          // data
 
 const pct = (x) => {
   if (x == null) return "—";
@@ -202,84 +207,99 @@ const pct = (x) => {
   if (v >= 0.1) return v.toFixed(1) + "%";
   return "<0.1%";
 };
+/* heatmap tints — p is 0..1 */
+const tintCoral = (p) => `rgba(255,90,60,${(Math.max(0, Math.min(1, p)) * 0.82).toFixed(3)})`;
+const tintGold = (p) => `rgba(244,192,78,${(Math.max(0, Math.min(1, p)) * 0.9).toFixed(3)})`;
 
-function Bar({ value, max, color }) {
-  const w = max > 0 ? (value / max) * 100 : 0;
-  return (
-    <div style={{ height: 8, background: "#0d1a26", borderRadius: 6, overflow: "hidden", flex: 1 }}>
-      <div style={{ width: `${w}%`, height: "100%", background: color, borderRadius: 6, transition: "width .6s cubic-bezier(.2,.7,.2,1)" }} />
-    </div>
-  );
+/* ---------- shared bits ---------- */
+const pillBase = {
+  fontFamily: FM, fontSize: 10, letterSpacing: 0.8, textTransform: "uppercase",
+  padding: "2px 7px", borderRadius: 999, display: "inline-flex", alignItems: "center", gap: 5, whiteSpace: "nowrap",
+};
+function StatePill({ status, label }) {
+  if (status === "live")
+    return (
+      <span style={{ ...pillBase, color: C.coral, border: `1px solid ${C.coralDeep}` }}>
+        <span className="wc-pulse" style={{ width: 6, height: 6, borderRadius: "50%", background: C.coral }} />Live
+      </span>
+    );
+  if (status === "done")
+    return <span style={{ ...pillBase, color: C.good, border: "1px solid #1f5e3b" }}>Final</span>;
+  return <span style={{ ...pillBase, color: C.faint, border: `1px solid ${C.line}` }}>{label || "Upcoming"}</span>;
 }
 
-function TeamPill({ code, dim }) {
+function SecHead({ title, children }) {
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 6, opacity: dim ? 0.5 : 1 }}>
-      <span style={{ fontSize: 15 }}>{flagFor(code)}</span>
-      <span>{nameFor(code)}</span>
-    </span>
+    <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 16, marginBottom: 20, flexWrap: "wrap" }}>
+      <h2 style={{ fontFamily: FD, fontSize: 24, fontWeight: 700, letterSpacing: "-0.01em", textTransform: "uppercase", margin: 0 }}>{title}</h2>
+      <p style={{ margin: 0, color: C.muted, fontSize: 13, maxWidth: "58ch", lineHeight: 1.5 }}>{children}</p>
+    </div>
   );
 }
 
 /* ---------- BRACKET ---------- */
 function MatchCard({ home, away, status, winner, score, date, venue, pHome, pAway, proj }) {
+  const microW = pHome != null && pAway != null && pHome + pAway > 0 ? (pHome / (pHome + pAway)) * 100 : null;
   const row = (code, p, isWin, isLose) => (
     <div style={{
       display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8,
-      padding: "6px 9px", borderRadius: 6,
-      background: isWin ? "rgba(39,209,127,0.12)" : "transparent",
-      opacity: isLose ? 0.4 : 1,
+      padding: "5px 7px", borderRadius: 7,
+      background: isWin ? "rgba(255,90,60,0.12)" : "transparent",
+      opacity: isLose ? 0.42 : 1,
     }}>
-      <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, fontWeight: isWin ? 700 : 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-        <span style={{ fontSize: 14 }}>{flagFor(code)}</span>
+      <span style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 13, fontWeight: isWin ? 800 : 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+        <span style={{ fontSize: 15 }}>{flagFor(code)}</span>
         <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{nameFor(code)}</span>
       </span>
-      <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 11.5, color: isWin ? C.green : C.muted }}>
+      <span style={{ fontFamily: FM, fontSize: 11.5, fontVariantNumeric: "tabular-nums", color: isWin ? C.coral : C.muted }}>
         {p != null ? pct(p) : ""}
       </span>
     </div>
   );
   return (
-    <div style={{
-      width: 188, background: C.panel, border: `1px solid ${C.line}`, borderRadius: 9,
-      padding: 5, position: "relative",
-    }}>
-      <div style={{ display: "flex", justifyContent: "space-between", padding: "1px 7px 4px", fontSize: 9.5, color: C.faint, letterSpacing: 0.4, textTransform: "uppercase" }}>
-        <span>{proj ? "Projected" : `${date}`}</span>
-        <span>{status === "live" ? <span style={{ color: C.gold }}>● Live</span> : status === "done" ? <span style={{ color: C.green }}>Final</span> : venue}</span>
+    <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 11, padding: 8 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 4px 6px" }}>
+        <span style={{ fontFamily: FM, fontSize: 9.5, letterSpacing: 0.6, textTransform: "uppercase", color: C.faint }}>
+          {proj ? "Projected" : date}
+        </span>
+        <StatePill status={status} label={proj ? date : venue} />
       </div>
       {row(home, pHome, winner === home, winner && winner !== home)}
       {row(away, pAway, winner === away, winner && winner !== away)}
-      {score && <div style={{ textAlign: "right", padding: "2px 8px 1px", fontSize: 10, color: C.faint, fontFamily: "'IBM Plex Mono',monospace" }}>{score}</div>}
+      {status !== "done" && microW != null && (
+        <div style={{ height: 4, borderRadius: 3, background: "#0b0f0d", overflow: "hidden", margin: "5px 7px 1px" }}>
+          <div style={{ width: `${microW}%`, height: "100%", background: C.coral, borderRadius: 3, transition: "width .6s cubic-bezier(.2,.7,.2,1)" }} />
+        </div>
+      )}
+      {score && (
+        <div style={{ textAlign: "right", fontFamily: FM, fontSize: 10, color: C.faint, padding: "3px 7px 0" }}>{score}</div>
+      )}
     </div>
   );
 }
 
 function Bracket({ model }) {
   const { slotDist, r16, qf, sf, fin, top } = model;
-
-  // Build a node label: most likely team + its reach prob, two candidates shown.
   const projMatch = (nodeA, nodeB) => {
     const a = top(nodeA), b = top(nodeB);
     return { home: a[0], away: b[0], pHome: a[1], pAway: b[1], proj: true, status: "upcoming" };
   };
-
-  const Col = ({ title, children, gap }) => (
-    <div style={{ display: "flex", flexDirection: "column", gap: gap, justifyContent: "space-around", minWidth: 196 }}>
-      <div style={{ fontSize: 10.5, fontWeight: 700, color: C.muted, letterSpacing: 1.2, textTransform: "uppercase", textAlign: "center", paddingBottom: 2 }}>{title}</div>
+  const Col = ({ title, children }) => (
+    <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-around", gap: 12, minWidth: 208 }}>
+      <div style={{ fontFamily: FD, fontSize: 11, fontWeight: 700, color: C.faint, letterSpacing: 1.4, textTransform: "uppercase", textAlign: "center", marginBottom: 2 }}>{title}</div>
       {children}
     </div>
   );
-
+  const champ = top(fin);
   return (
     <div>
-      <p style={{ color: C.muted, fontSize: 12.5, lineHeight: 1.5, margin: "0 0 12px" }}>
-        Round of 32 is live. Completed results are locked; every later slot shows the model's
-        most-likely occupant and its chance of reaching that round. Swipe horizontally to follow a path to the final.
-      </p>
+      <SecHead title="The Bracket">
+        Round of 32 is live. Finished games are locked; every later slot shows the model's most-likely
+        occupant and its chance of getting there. Scroll right toward the final.
+      </SecHead>
       <div style={{ overflowX: "auto", paddingBottom: 12, WebkitOverflowScrolling: "touch" }}>
-        <div style={{ display: "flex", gap: 18, minWidth: 1080 }}>
-          <Col title="Round of 32" gap={6}>
+        <div style={{ display: "flex", gap: 22, minWidth: 1120 }}>
+          <Col title="Round of 32">
             {R32.map((m) => {
               const d = slotDist[m.slot];
               return <MatchCard key={m.slot} home={m.home} away={m.away} status={m.status}
@@ -287,26 +307,22 @@ function Bracket({ model }) {
                 pHome={d[m.home]} pAway={d[m.away]} />;
             })}
           </Col>
-          <Col title="Round of 16" gap={20}>
-            {R16_PAIRS.map((pair, i) => {
-              const mc = projMatch(slotDist[pair[0]], slotDist[pair[1]]);
-              return <MatchCard key={i} {...mc} />;
-            })}
+          <Col title="Round of 16">
+            {R16_PAIRS.map((pair, i) => <MatchCard key={i} {...projMatch(slotDist[pair[0]], slotDist[pair[1]])} />)}
           </Col>
-          <Col title="Quarterfinals" gap={66}>
+          <Col title="Quarterfinals">
             {QF_PAIRS.map((pair, i) => <MatchCard key={i} {...projMatch(r16[pair[0]], r16[pair[1]])} />)}
           </Col>
-          <Col title="Semifinals" gap={170}>
+          <Col title="Semifinals">
             {SF_PAIRS.map((pair, i) => <MatchCard key={i} {...projMatch(qf[pair[0]], qf[pair[1]])} />)}
           </Col>
-          <Col title="Final" gap={6}>
+          <Col title="Final">
             <MatchCard {...projMatch(sf[0], sf[1])} />
-            <div style={{ marginTop: 10, textAlign: "center" }}>
-              <div style={{ fontSize: 10.5, color: C.faint, letterSpacing: 1, textTransform: "uppercase" }}>Model favorite</div>
-              <div style={{ fontSize: 20, fontWeight: 800, color: C.gold, marginTop: 4 }}>
-                {flagFor(top(fin)[0])} {nameFor(top(fin)[0])}
-              </div>
-              <div style={{ fontFamily: "'IBM Plex Mono',monospace", color: C.muted, fontSize: 12 }}>{pct(top(fin)[1])} to win it all</div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, background: "linear-gradient(160deg, rgba(244,192,78,0.12), transparent)", border: "1px solid #5a4a1e", borderRadius: 14, padding: "20px 14px", marginTop: 6 }}>
+              <div style={{ fontFamily: FD, fontSize: 10, fontWeight: 700, letterSpacing: 1.6, textTransform: "uppercase", color: C.gold }}>Projected champion</div>
+              <div style={{ fontSize: 40 }}>{flagFor(champ[0])}</div>
+              <div style={{ fontFamily: FD, fontWeight: 700, fontSize: 22, textTransform: "uppercase", letterSpacing: "-0.01em" }}>{nameFor(champ[0])}</div>
+              <div style={{ fontFamily: FM, color: C.gold, fontSize: 14 }}>{pct(champ[1])} to lift the trophy</div>
             </div>
           </Col>
         </div>
@@ -324,45 +340,64 @@ function Forecast({ model }) {
     .sort((a, b) => b.champ - a.champ);
   const maxChamp = rows[0].champ;
 
+  const subHead = { fontFamily: FD, fontSize: 12, letterSpacing: 1.4, textTransform: "uppercase", color: C.muted, marginBottom: 14 };
+  const th = { fontFamily: FD, fontSize: 10.5, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", color: C.muted, padding: "11px 12px", textAlign: "right", borderBottom: `1px solid ${C.line}` };
+  const cellBase = { fontFamily: FM, fontSize: 12.5, fontVariantNumeric: "tabular-nums", padding: "11px 12px", textAlign: "right", borderRadius: 4 };
+
   return (
     <div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 0 }}>
-        <div style={{ marginBottom: 18 }}>
-          <h3 style={hStyle}>Title probability</h3>
-          <p style={{ color: C.muted, fontSize: 12.5, margin: "0 0 14px", lineHeight: 1.5 }}>
-            De-vigged consensus of three sportsbooks, propagated through the live bracket. Bars sum to 100% across the field.
-          </p>
-          {rows.map((r) => (
-            <div key={r.c} style={{ display: "flex", alignItems: "center", gap: 10, padding: "5px 0" }}>
-              <div style={{ width: 132, fontSize: 13, display: "flex", alignItems: "center", gap: 7, whiteSpace: "nowrap" }}>
-                <span style={{ fontSize: 15 }}>{flagFor(r.c)}</span>{nameFor(r.c)}
+      <SecHead title="Forecast">
+        De-vigged consensus of three sportsbooks, propagated through the live bracket. The heatmap reads
+        warm where a run is likely, dark where it isn't.
+      </SecHead>
+      <div className="wc-grid2" style={{ display: "grid", gridTemplateColumns: "0.85fr 1.15fr", gap: 30, alignItems: "start" }}>
+        {/* leaderboard */}
+        <div>
+          <h3 style={subHead}>Title probability</h3>
+          {rows.map((r, i) => (
+            <div key={r.c} style={{ padding: "9px 0", borderTop: i ? `1px solid ${C.line}` : "none" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+                <span style={{ display: "flex", alignItems: "center", gap: 9, fontWeight: 700, fontSize: 14 }}>
+                  <span style={{ width: 18, fontFamily: FM, fontSize: 12, color: C.faint }}>{i + 1}</span>
+                  <span style={{ fontSize: 17 }}>{flagFor(r.c)}</span>{nameFor(r.c)}
+                </span>
+                <span style={{ fontFamily: FM, fontWeight: 600, fontSize: 15, fontVariantNumeric: "tabular-nums", color: i === 0 ? C.gold : C.text }}>{pct(r.champ)}</span>
               </div>
-              <Bar value={r.champ} max={maxChamp} color={C.gold} />
-              <div style={{ width: 46, textAlign: "right", fontFamily: "'IBM Plex Mono',monospace", fontSize: 12.5, color: C.text }}>{pct(r.champ)}</div>
+              <div style={{ height: 9, background: "#0b0f0d", borderRadius: 5, overflow: "hidden", marginTop: 7, marginLeft: 27 }}>
+                <div style={{ width: `${(r.champ / maxChamp) * 100}%`, height: "100%", background: `linear-gradient(90deg, ${C.coralDeep}, ${C.coral})`, borderRadius: 5, transition: "width .6s cubic-bezier(.2,.7,.2,1)" }} />
+              </div>
             </div>
           ))}
         </div>
 
+        {/* heatmap */}
         <div>
-          <h3 style={hStyle}>Advancement by round</h3>
-          <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
-            <table style={{ borderCollapse: "collapse", width: "100%", minWidth: 460, fontSize: 12.5 }}>
+          <h3 style={subHead}>Advancement heatmap</h3>
+          <div style={{ overflowX: "auto", border: `1px solid ${C.line}`, borderRadius: 12, WebkitOverflowScrolling: "touch" }}>
+            <table style={{ borderCollapse: "collapse", width: "100%", minWidth: 460 }}>
               <thead>
-                <tr style={{ color: C.muted, textAlign: "right" }}>
-                  <th style={{ ...thStyle, textAlign: "left" }}>Team</th>
-                  <th style={thStyle}>R16</th><th style={thStyle}>QF</th><th style={thStyle}>SF</th>
-                  <th style={thStyle}>Final</th><th style={{ ...thStyle, color: C.gold }}>Champ</th>
+                <tr>
+                  <th style={{ ...th, textAlign: "left" }}>Team</th>
+                  <th style={th}>R16</th><th style={th}>QF</th><th style={th}>SF</th><th style={th}>Final</th>
+                  <th style={{ ...th, color: C.gold }}>Champ</th>
                 </tr>
               </thead>
               <tbody>
-                {rows.map((r) => (
-                  <tr key={r.c} style={{ borderTop: `1px solid ${C.line}` }}>
-                    <td style={{ ...tdStyle, textAlign: "left" }}><span style={{ marginRight: 6 }}>{flagFor(r.c)}</span>{nameFor(r.c)}</td>
-                    <td style={tdMono}>{pct(r.r16)}</td><td style={tdMono}>{pct(r.qf)}</td>
-                    <td style={tdMono}>{pct(r.sf)}</td><td style={tdMono}>{pct(r.fin)}</td>
-                    <td style={{ ...tdMono, color: C.gold, fontWeight: 700 }}>{pct(r.champ)}</td>
-                  </tr>
-                ))}
+                {rows.map((r, i) => {
+                  const cell = (v) => (
+                    <td style={{ ...cellBase, background: tintCoral(v), color: v > 0.5 ? C.pitch : C.text }}>{pct(v)}</td>
+                  );
+                  const champRel = r.champ / maxChamp;
+                  return (
+                    <tr key={r.c} style={{ borderTop: i ? "1px solid rgba(37,50,43,0.6)" : "none" }}>
+                      <td style={{ ...cellBase, fontFamily: FB, fontWeight: 700, fontSize: 13, textAlign: "left", whiteSpace: "nowrap" }}>
+                        <span style={{ marginRight: 7 }}>{flagFor(r.c)}</span>{nameFor(r.c)}
+                      </td>
+                      {cell(r.r16)}{cell(r.qf)}{cell(r.sf)}{cell(r.fin)}
+                      <td style={{ ...cellBase, fontWeight: 700, background: tintGold(champRel), color: champRel > 0.5 ? C.pitch : C.gold }}>{pct(r.champ)}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -375,26 +410,29 @@ function Forecast({ model }) {
 /* ---------- GROUPS ---------- */
 function Groups() {
   const tag = (s) => {
-    if (s === "W") return { t: "1st", c: C.green };
-    if (s === "RU") return { t: "2nd", c: C.green };
-    if (s === "3rd") return { t: "3rd ✓", c: C.blue };
-    return { t: "out", c: C.faint };
+    if (s === "W") return { t: "1st", c: C.good, b: "#1f5e3b" };
+    if (s === "RU") return { t: "2nd", c: C.good, b: "#1f5e3b" };
+    if (s === "3rd") return { t: "3rd ✓", c: C.cyan, b: "#1d5651" };
+    return { t: "out", c: C.faint, b: C.line };
   };
+  const miniTh = { fontFamily: FM, fontSize: 10, color: C.faint, textTransform: "uppercase", textAlign: "right", paddingBottom: 5, width: 26 };
+  const miniTd = { fontFamily: FM, fontSize: 12, color: C.muted, textAlign: "right", padding: "5px 0" };
   return (
     <div>
-      <p style={{ color: C.muted, fontSize: 12.5, margin: "0 0 16px", lineHeight: 1.5 }}>
-        Final standings, all 12 groups. Top two advance automatically; the eight best third-place teams (✓) also qualified. 32 of 48 reached the knockout stage.
-      </p>
+      <SecHead title="Groups">
+        Final standings. Top two advance; the eight best third-place teams (✓) also qualified — 32 of 48
+        reached the knockout stage.
+      </SecHead>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 14 }}>
         {Object.entries(GROUPS).map(([g, rows]) => (
-          <div key={g} style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 10, padding: "12px 14px" }}>
-            <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: 1.5, color: C.gold, marginBottom: 8 }}>GROUP {g}</div>
+          <div key={g} style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 12, padding: "13px 15px" }}>
+            <div style={{ fontFamily: FD, fontSize: 13, fontWeight: 700, letterSpacing: 1.6, textTransform: "uppercase", color: C.coral, marginBottom: 8 }}>Group {g}</div>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5 }}>
               <thead>
-                <tr style={{ color: C.faint, fontSize: 10.5 }}>
-                  <th style={{ textAlign: "left", paddingBottom: 4, fontWeight: 600 }}>Team</th>
+                <tr>
+                  <th style={{ ...miniTh, textAlign: "left", width: "auto" }}>Team</th>
                   <th style={miniTh}>W</th><th style={miniTh}>D</th><th style={miniTh}>L</th>
-                  <th style={miniTh}>GD</th><th style={miniTh}>Pts</th><th style={{ ...miniTh, width: 40 }} />
+                  <th style={miniTh}>GD</th><th style={miniTh}>Pts</th><th style={{ ...miniTh, width: 44 }} />
                 </tr>
               </thead>
               <tbody>
@@ -402,14 +440,16 @@ function Groups() {
                   const [code, w, d, l, gd, pts, st] = r;
                   const tg = tag(st);
                   return (
-                    <tr key={code} style={{ borderTop: `1px solid ${C.line}`, opacity: st === "out" ? 0.5 : 1 }}>
+                    <tr key={code} style={{ borderTop: `1px solid ${C.line}`, opacity: st === "out" ? 0.45 : 1 }}>
                       <td style={{ padding: "5px 0", whiteSpace: "nowrap" }}>
-                        <span style={{ marginRight: 5 }}>{flagFor(code)}</span>{nameFor(code)}
+                        <span style={{ marginRight: 6 }}>{flagFor(code)}</span>{nameFor(code)}
                       </td>
                       <td style={miniTd}>{w}</td><td style={miniTd}>{d}</td><td style={miniTd}>{l}</td>
                       <td style={miniTd}>{gd > 0 ? "+" + gd : gd}</td>
                       <td style={{ ...miniTd, fontWeight: 700, color: C.text }}>{pts}</td>
-                      <td style={{ textAlign: "right", fontSize: 10, color: tg.c, fontWeight: 700 }}>{tg.t}</td>
+                      <td style={{ textAlign: "right" }}>
+                        <span style={{ fontFamily: FM, fontSize: 9.5, padding: "1px 5px", borderRadius: 4, color: tg.c, border: `1px solid ${tg.b}` }}>{tg.t}</span>
+                      </td>
                     </tr>
                   );
                 })}
@@ -427,29 +467,33 @@ function Leaders() {
   const maxG = SCORERS[0].goals;
   return (
     <div>
-      <h3 style={hStyle}>Golden Boot race</h3>
-      <p style={{ color: C.muted, fontSize: 12.5, margin: "0 0 14px", lineHeight: 1.5 }}>
-        Top scorers after the group stage. Assists break ties. Messi (now the all-time World Cup scoring leader) holds a clear lead.
-      </p>
-      {SCORERS.map((s, i) => (
-        <div key={s.name} style={{ display: "flex", alignItems: "center", gap: 11, padding: "7px 0", borderTop: i ? `1px solid ${C.line}` : "none" }}>
-          <div style={{ width: 18, color: C.faint, fontFamily: "'IBM Plex Mono',monospace", fontSize: 12 }}>{i + 1}</div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 13.5, fontWeight: 600, display: "flex", alignItems: "center", gap: 7 }}>
-              <span style={{ fontSize: 15 }}>{flagFor(s.team)}</span>
-              <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.name}</span>
+      <SecHead title="Golden Boot">
+        Top scorers after the group stage. Assists break ties — Messi, now the all-time World Cup scoring
+        leader, holds a clear lead.
+      </SecHead>
+      <div style={{ maxWidth: 720 }}>
+        {SCORERS.map((s, i) => (
+          <div key={s.name} style={{ display: "grid", gridTemplateColumns: "22px 1fr auto", gap: 12, alignItems: "center", padding: "10px 0", borderTop: i ? `1px solid ${C.line}` : "none" }}>
+            <div style={{ fontFamily: FM, color: C.faint, fontSize: 12 }}>{i + 1}</div>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontWeight: 700, fontSize: 14, display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 16 }}>{flagFor(s.team)}</span>
+                <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.name}</span>
+              </div>
+              <div style={{ height: 7, background: "#0b0f0d", borderRadius: 4, overflow: "hidden", marginTop: 7 }}>
+                <div style={{ width: `${(s.goals / maxG) * 100}%`, height: "100%", background: `linear-gradient(90deg, #b88a25, ${C.gold})`, transition: "width .6s cubic-bezier(.2,.7,.2,1)" }} />
+              </div>
             </div>
-            <div style={{ marginTop: 5 }}><Bar value={s.goals} max={maxG} color={C.green} /></div>
+            <div style={{ textAlign: "right", fontFamily: FM, minWidth: 64 }}>
+              <span style={{ fontSize: 19, fontWeight: 600 }}>{s.goals}</span>
+              <span style={{ color: C.faint, fontSize: 11 }}> G</span>
+              <div style={{ color: C.faint, fontSize: 10.5 }}>{s.assists} assist{s.assists === 1 ? "" : "s"}</div>
+            </div>
           </div>
-          <div style={{ textAlign: "right", minWidth: 64 }}>
-            <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 17, fontWeight: 700 }}>{s.goals}</span>
-            <span style={{ color: C.faint, fontSize: 11 }}> G</span>
-            <div style={{ color: C.faint, fontSize: 10.5 }}>{s.assists} assist{s.assists === 1 ? "" : "s"}</div>
-          </div>
+        ))}
+        <div style={{ marginTop: 22, padding: "13px 15px", background: C.panel, border: `1px solid ${C.line}`, borderRadius: 12, color: C.muted, fontSize: 12.5, lineHeight: 1.6 }}>
+          <strong style={{ color: C.text }}>Tournament note:</strong> the group stage set a record pace, with a century of goals reached in just 33 matches. The expanded 48-team format means semifinalists will play eight games, the most in World Cup history.
         </div>
-      ))}
-      <div style={{ marginTop: 22, padding: "12px 14px", background: C.panel, border: `1px solid ${C.line}`, borderRadius: 10, color: C.muted, fontSize: 12.5, lineHeight: 1.6 }}>
-        <strong style={{ color: C.text }}>Tournament note:</strong> the group stage set a record pace, with a century of goals reached in just 33 matches. The expanded 48-team format means semifinalists will play eight games, the most in World Cup history.
       </div>
     </div>
   );
@@ -458,19 +502,18 @@ function Leaders() {
 /* ---------- METHODOLOGY ---------- */
 function Methodology({ onClose }) {
   return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(4,9,14,0.72)", zIndex: 50, display: "flex", justifyContent: "center", alignItems: "flex-start", padding: 16, overflowY: "auto" }}>
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(3,6,5,0.74)", zIndex: 50, display: "flex", justifyContent: "center", alignItems: "flex-start", padding: 16, overflowY: "auto" }}>
       <div onClick={(e) => e.stopPropagation()} style={{ maxWidth: 620, width: "100%", marginTop: 40, background: C.panel, border: `1px solid ${C.line}`, borderRadius: 14, padding: "22px 22px 26px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-          <h2 style={{ margin: 0, fontFamily: "'Archivo',sans-serif", fontSize: 19, fontWeight: 800 }}>Methodology & sources</h2>
-          <button onClick={onClose} style={{ background: C.panel2, border: `1px solid ${C.line}`, color: C.text, borderRadius: 8, padding: "5px 11px", cursor: "pointer", fontSize: 13 }}>Close</button>
+          <h2 style={{ margin: 0, fontFamily: FD, fontSize: 20, fontWeight: 700, textTransform: "uppercase", letterSpacing: "-0.01em" }}>Methodology & sources</h2>
+          <button onClick={onClose} style={{ background: C.panel2, border: `1px solid ${C.line}`, color: C.text, borderRadius: 8, padding: "5px 11px", cursor: "pointer", fontSize: 13, fontFamily: FB }}>Close</button>
         </div>
         {[
           ["How probabilities are built", "Each team carries one strength weight, taken as the de-vigged average of its title odds across FanDuel, BetMGM and DraftKings (longshots anchored to the same books' lower tiers). The identical formula is applied to every team. No host nation or popular side is adjusted by hand."],
           ["Match model", "For any match, P(A beats B) = strength(A) ÷ (strength(A) + strength(B)). The same rule governs every fixture from the Round of 32 to the final."],
           ["Bracket propagation", "Probabilities are propagated analytically (not simulated) through the fixed bracket. Completed results are locked to 100%. Because the math is exact, every round's probabilities sum to 100% across surviving teams."],
-          ["What is fact vs. estimate", "Group standings, the 16 Round-of-32 matchups, completed results and the Golden Boot table are reported facts. All R16-and-beyond occupants and every probability are MODEL ESTIMATES, not predictions."],
-          ["Where conflicts existed", "Early FOX projections briefly listed Colombia–Croatia and Portugal–Ghana; the settled bracket (CBS, FOX, Yahoo) is Colombia–Ghana and Portugal–Croatia, used here."],
-          ["Sources", "FIFA.com, Yahoo Sports, FOX Sports, NBC Sports, CBS Sports, ESPN, Wikipedia. Odds via FanDuel, BetMGM, DraftKings. Verified June 29, 2026."],
+          ["What is fact vs. estimate", "Group standings, the 16 Round-of-32 matchups, completed results and the Golden Boot table are reported facts, refreshed automatically from football-data.org. All R16-and-beyond occupants and every probability are MODEL ESTIMATES, not predictions."],
+          ["Sources", "FIFA.com, Yahoo Sports, FOX Sports, NBC Sports, CBS Sports, ESPN, Wikipedia. Odds via FanDuel, BetMGM, DraftKings. Live results via football-data.org."],
         ].map(([t, b]) => (
           <div key={t} style={{ marginBottom: 13 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: C.gold, marginBottom: 3 }}>{t}</div>
@@ -482,14 +525,6 @@ function Methodology({ onClose }) {
   );
 }
 
-/* ---------- SHARED STYLES ---------- */
-const hStyle = { fontFamily: "'Archivo',sans-serif", fontSize: 15, fontWeight: 800, letterSpacing: 0.3, margin: "0 0 4px", color: C.text };
-const thStyle = { padding: "0 0 8px", fontWeight: 600, fontSize: 11.5, textTransform: "uppercase", letterSpacing: 0.5, textAlign: "right" };
-const tdStyle = { padding: "8px 0", textAlign: "right" };
-const tdMono = { padding: "8px 0", textAlign: "right", fontFamily: "'IBM Plex Mono',monospace", color: C.muted };
-const miniTh = { textAlign: "right", paddingBottom: 4, fontWeight: 600, width: 26 };
-const miniTd = { textAlign: "right", padding: "5px 0", fontFamily: "'IBM Plex Mono',monospace", color: C.muted };
-
 /* =============================================================================
    APP
    ============================================================================= */
@@ -497,75 +532,105 @@ export default function Dashboard() {
   const model = useMemo(buildModel, []);
   const [tab, setTab] = useState("bracket");
   const [methodOpen, setMethodOpen] = useState(false);
-  const champLeader = model.top(model.champion);
+  const fav = model.top(model.champion);
+  const played = R32.filter((m) => m.status === "done").length;
+  const live = R32.find((m) => m.status === "live");
+  const nextUp = R32.find((m) => m.status === "upcoming");
 
-  const TABS = [
-    ["bracket", "Bracket"], ["forecast", "Forecast"], ["groups", "Groups"], ["leaders", "Leaders"],
-  ];
+  const TABS = [["bracket", "Bracket"], ["forecast", "Forecast"], ["groups", "Groups"], ["leaders", "Golden Boot"]];
 
   return (
-    <div style={{ background: C.ink, minHeight: "100vh", color: C.text, fontFamily: "'Inter',system-ui,sans-serif" }}>
+    <div style={{ background: `radial-gradient(1200px 480px at 78% -10%, rgba(255,90,60,0.10), transparent 60%), ${C.pitch}`, minHeight: "100vh", color: C.text, fontFamily: FB }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap');
         * { box-sizing: border-box; }
         ::-webkit-scrollbar { height: 9px; width: 9px; }
         ::-webkit-scrollbar-thumb { background: ${C.line}; border-radius: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        button:focus-visible { outline: 2px solid ${C.gold}; outline-offset: 2px; }
-        @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+        button:focus-visible { outline: 2px solid ${C.coral}; outline-offset: 2px; }
+        .wc-pulse { animation: wcpulse 1.4s infinite; }
+        @keyframes wcpulse { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
+        .wc-tab { font-family: ${FD}; font-weight: 600; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; color: ${C.muted}; background: transparent; border: 1px solid transparent; border-radius: 7px; padding: 8px 13px; cursor: pointer; transition: background .15s, color .15s; }
+        .wc-tab:hover { color: ${C.text}; background: ${C.panel}; }
+        @media (max-width: 880px) { .wc-hero { grid-template-columns: 1fr !important; } .wc-grid2 { grid-template-columns: 1fr !important; } }
+        @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
       `}</style>
 
-      {/* HEADER */}
-      <div style={{ borderBottom: `1px solid ${C.line}`, background: `linear-gradient(180deg, #0E1C2B 0%, ${C.ink} 100%)`, position: "relative", overflow: "hidden" }}>
-        {/* subtle pitch motif */}
-        <div aria-hidden style={{ position: "absolute", right: -60, top: -40, width: 240, height: 240, border: `1px solid ${C.line}`, borderRadius: "50%", opacity: 0.5 }} />
-        <div aria-hidden style={{ position: "absolute", right: 60, top: 0, bottom: 0, width: 1, background: C.line, opacity: 0.5 }} />
-        <div style={{ maxWidth: 1180, margin: "0 auto", padding: "20px 18px 16px", position: "relative" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 11, letterSpacing: 2, color: C.muted, textTransform: "uppercase" }}>
-            <span style={{ width: 7, height: 7, borderRadius: "50%", background: C.gold, boxShadow: `0 0 9px ${C.gold}` }} />
-            FIFA World Cup 2026 · USA · Canada · Mexico
+      {/* HEADER BAR */}
+      <header style={{ position: "sticky", top: 0, zIndex: 20, background: "rgba(11,16,14,0.82)", backdropFilter: "blur(12px)", borderBottom: `1px solid ${C.line}` }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap", padding: "13px 22px", maxWidth: 1240, margin: "0 auto" }}>
+          <div style={{ fontFamily: FD, fontWeight: 700, letterSpacing: "0.01em", fontSize: 19, textTransform: "uppercase" }}>
+            MUNDIAL<span style={{ color: C.coral }}>ANALYTICS</span>
           </div>
-          <h1 style={{ fontFamily: "'Archivo',sans-serif", fontWeight: 800, fontSize: 30, lineHeight: 1.05, margin: "10px 0 4px", letterSpacing: -0.5 }}>
-            Knockout Stage Forecast
-          </h1>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "baseline", color: C.muted, fontSize: 13 }}>
-            <span>Round of 32 · 32 teams remain</span>
-            <span style={{ display: "flex", gap: 7, alignItems: "baseline" }}>
-              Model favorite:
-              <strong style={{ color: C.gold, fontSize: 14 }}>{flagFor(champLeader[0])} {nameFor(champLeader[0])} {pct(champLeader[1])}</strong>
-            </span>
-            <span>Updated {UPDATED_LABEL}</span>
-          </div>
-
-          {/* TABS */}
-          <div style={{ display: "flex", gap: 6, marginTop: 16, flexWrap: "wrap" }}>
+          <nav style={{ display: "flex", gap: 4, flexWrap: "wrap", alignItems: "center" }}>
             {TABS.map(([k, label]) => (
-              <button key={k} onClick={() => setTab(k)} style={{
-                background: tab === k ? C.gold : C.panel, color: tab === k ? "#1a1205" : C.text,
-                border: `1px solid ${tab === k ? C.gold : C.line}`, borderRadius: 8,
-                padding: "8px 15px", fontSize: 13, fontWeight: 700, cursor: "pointer",
-                fontFamily: "'Inter',sans-serif", transition: "background .15s",
-              }}>{label}</button>
+              <button key={k} className="wc-tab" onClick={() => setTab(k)}
+                style={tab === k ? { color: C.pitch, background: C.coral, borderColor: C.coral } : undefined}>
+                {label}
+              </button>
             ))}
-            <button onClick={() => setMethodOpen(true)} style={{
-              marginLeft: "auto", background: "transparent", color: C.muted, border: `1px solid ${C.line}`,
-              borderRadius: 8, padding: "8px 13px", fontSize: 12.5, fontWeight: 600, cursor: "pointer",
-            }}>ⓘ Methodology & sources</button>
+            <button className="wc-tab" onClick={() => setMethodOpen(true)} style={{ color: C.faint }}>ⓘ Method</button>
+          </nav>
+          <div style={{ fontFamily: FM, fontSize: 11, color: C.faint, whiteSpace: "nowrap" }}>UPDATED {UPDATED_LABEL.toUpperCase()}</div>
+        </div>
+      </header>
+
+      {/* HERO */}
+      <div style={{ position: "relative", overflow: "hidden", borderBottom: `1px solid ${C.line}` }}>
+        <div aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none", opacity: 0.5 }}>
+          <div style={{ position: "absolute", width: 360, height: 360, borderRadius: "50%", border: `1px solid ${C.line}`, right: -120, top: -150 }} />
+          <div style={{ position: "absolute", width: 520, height: 520, borderRadius: "50%", border: `1px solid ${C.line}`, right: 120, bottom: -420 }} />
+          <div style={{ position: "absolute", top: 0, bottom: 0, width: 1, background: C.line, right: "18%" }} />
+        </div>
+        <div className="wc-hero" style={{ position: "relative", maxWidth: 1240, margin: "0 auto", padding: "30px 22px 34px", display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 28, alignItems: "end" }}>
+          <div>
+            <div style={{ fontFamily: FD, fontSize: 11, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase", color: C.muted, display: "flex", alignItems: "center", gap: 9 }}>
+              <span style={{ width: 8, height: 8, borderRadius: "50%", background: C.coral, boxShadow: `0 0 12px ${C.coral}` }} />
+              FIFA World Cup 2026 · USA · Canada · Mexico
+            </div>
+            <h1 style={{ fontFamily: FD, fontSize: "clamp(30px, 5vw, 50px)", fontWeight: 700, lineHeight: 0.98, letterSpacing: "-0.02em", textTransform: "uppercase", textWrap: "balance", margin: "12px 0 0" }}>
+              Knockout <span style={{ color: C.coral }}>Forecast</span>
+            </h1>
+            <div style={{ display: "flex", gap: 22, flexWrap: "wrap", marginTop: 16 }}>
+              {[
+                ["Stage", "Round of 32"],
+                ["Played", `${played} / 16`],
+                [live ? "Live now" : "Next kickoff", live ? `${nameFor(live.home)}–${nameFor(live.away)}` : nextUp ? `${nameFor(nextUp.home)}–${nameFor(nextUp.away)} · ${nextUp.date}` : "—"],
+              ].map(([k, v]) => (
+                <div key={k}>
+                  <div style={{ fontFamily: FM, fontSize: 11, letterSpacing: 0.8, textTransform: "uppercase", color: C.faint }}>{k}</div>
+                  <div style={{ fontFamily: FD, fontWeight: 600, fontSize: 17, marginTop: 2, color: live && k === "Live now" ? C.coral : C.text }}>{v}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={{ background: `linear-gradient(160deg, ${C.panel2}, ${C.panel})`, border: `1px solid ${C.line}`, borderRadius: 16, padding: "18px 20px", position: "relative", overflow: "hidden" }}>
+            <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 4, background: `linear-gradient(${C.gold}, ${C.coral})` }} />
+            <div style={{ fontFamily: FD, fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: C.gold }}>★ Model favorite</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "8px 0 2px" }}>
+              <span style={{ fontSize: 38, lineHeight: 1 }}>{flagFor(fav[0])}</span>
+              <span style={{ fontFamily: FD, fontWeight: 700, fontSize: 30, letterSpacing: "-0.01em", textTransform: "uppercase" }}>{nameFor(fav[0])}</span>
+            </div>
+            <div style={{ fontFamily: FM, fontSize: 46, fontWeight: 600, color: C.gold, lineHeight: 1, letterSpacing: "-0.02em" }}>
+              {pct(fav[1])}<small style={{ fontSize: 16, color: C.muted, fontWeight: 500 }}> to win it all</small>
+            </div>
+            <div style={{ fontSize: 12, color: C.muted, marginTop: 6 }}>{pct(model.reachFinal[fav[0]])} to reach the final · {pct(model.reachSF[fav[0]])} to the semis.</div>
           </div>
         </div>
       </div>
 
       {/* BODY */}
-      <div style={{ maxWidth: 1180, margin: "0 auto", padding: "22px 18px 60px" }}>
+      <div style={{ maxWidth: 1240, margin: "0 auto", padding: "40px 22px 60px" }}>
         {tab === "bracket" && <Bracket model={model} />}
         {tab === "forecast" && <Forecast model={model} />}
         {tab === "groups" && <Groups />}
         {tab === "leaders" && <Leaders />}
       </div>
 
-      {/* FOOTER NOTE */}
-      <div style={{ borderTop: `1px solid ${C.line}`, padding: "16px 18px", textAlign: "center", color: C.faint, fontSize: 11.5, lineHeight: 1.6 }}>
-        Standings, matchups and results are reported facts. All forward-looking figures are model estimates derived from a de-vigged consensus of three sportsbooks, not predictions of fact. Sources: FIFA, Yahoo, FOX, NBC, CBS, ESPN, Wikipedia.
+      {/* FOOTER */}
+      <div style={{ borderTop: `1px solid ${C.line}`, padding: "26px 22px 60px", textAlign: "center", color: C.faint, fontSize: 11.5, lineHeight: 1.6, maxWidth: 1240, margin: "0 auto" }}>
+        Standings, results and the Golden Boot are reported facts, refreshed automatically from football-data.org.
+        Title and advancement figures are model estimates from a de-vigged sportsbook consensus — not predictions of fact.
       </div>
 
       {methodOpen && <Methodology onClose={() => setMethodOpen(false)} />}
