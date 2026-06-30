@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-30T05:59:58.534Z",
+  "updated": "2026-06-30T09:59:17.404Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -15,12 +15,12 @@
     "GER|PAR": {
       "status": "done",
       "winner": "PAR",
-      "score": "1–1 (4–4 pens)"
+      "score": "1–1 (3–4 pens)"
     },
     "MAR|NED": {
       "status": "done",
       "winner": "MAR",
-      "score": "1–1 (MAR on pens)"
+      "score": "1–1 (2–3 pens)"
     },
     "CIV|NOR": {
       "status": "upcoming",
@@ -78,6 +78,11 @@
       "score": null
     },
     "COL|GHA": {
+      "status": "upcoming",
+      "winner": null,
+      "score": null
+    },
+    "CAN|MAR": {
       "status": "upcoming",
       "winner": null,
       "score": null
