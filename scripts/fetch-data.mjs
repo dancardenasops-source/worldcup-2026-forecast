@@ -59,28 +59,41 @@ function codeOf(team) {
   const tla = team.tla && team.tla.toUpperCase();
   if (tla && TLA_OVERRIDES[tla]) return TLA_OVERRIDES[tla];
   if (tla) return tla; // assume FIFA-style match
-  unmatched.add(team.name || JSON.stringify(team));
+  if (team.name) unmatched.add(team.name); // ignore TBD placeholders (no name/tla)
   return null;
 }
 
 const STATUS = (s) =>
   s === "FINISHED" ? "done" : (s === "IN_PLAY" || s === "PAUSED") ? "live" : "upcoming";
 
+/* Display score. For shootouts, show the level score at end of play with pens in
+   parens (e.g. "1–1 (4–2 pens)"); otherwise the plain full-time score. */
 function scoreString(score) {
   const ft = score?.fullTime;
   if (ft == null || ft.home == null || ft.away == null) return null;
-  let s = `${ft.home}–${ft.away}`;
-  const pen = score?.penalties;
-  if (pen != null && pen.home != null && pen.away != null) {
-    s += ` (${pen.home}–${pen.away} pens)`;
+  if (score.duration === "PENALTY_SHOOTOUT") {
+    const rt = score.regularTime, et = score.extraTime, pen = score.penalties;
+    const lvlH = rt ? (rt.home ?? 0) + (et?.home ?? 0) : ft.home;
+    const lvlA = rt ? (rt.away ?? 0) + (et?.away ?? 0) : ft.away;
+    const pens = pen && pen.home != null ? ` (${pen.home}–${pen.away} pens)` : "";
+    return `${lvlH}–${lvlA}${pens}`;
   }
-  return s;
+  return `${ft.home}–${ft.away}`;
 }
 
+/* Winner code. football-data leaves score.winner null for shootouts, so fall back
+   to penalties, then to the (penalty-inclusive) full-time aggregate. */
 function winnerCode(m) {
-  if (m.score?.winner === "HOME_TEAM") return codeOf(m.homeTeam);
-  if (m.score?.winner === "AWAY_TEAM") return codeOf(m.awayTeam);
-  return null; // draw or undecided
+  const s = m.score || {};
+  if (s.winner === "HOME_TEAM") return codeOf(m.homeTeam);
+  if (s.winner === "AWAY_TEAM") return codeOf(m.awayTeam);
+  const pen = s.penalties;
+  if (pen && pen.home != null && pen.home !== pen.away)
+    return codeOf(pen.home > pen.away ? m.homeTeam : m.awayTeam);
+  const ft = s.fullTime;
+  if (ft && ft.home != null && ft.home !== ft.away)
+    return codeOf(ft.home > ft.away ? m.homeTeam : m.awayTeam);
+  return null; // genuine draw / undecided
 }
 
 /* ---- knockout results, keyed by sorted team-pair --------------------------- */

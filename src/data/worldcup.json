@@ -1,5 +1,594 @@
 {
-  "updated": null,
+  "updated": "2026-06-30T05:42:37.677Z",
   "source": "football-data.org",
-  "results": {}
+  "results": {
+    "CAN|RSA": {
+      "status": "done",
+      "winner": "CAN",
+      "score": "0–1"
+    },
+    "BRA|JPN": {
+      "status": "done",
+      "winner": "BRA",
+      "score": "2–1"
+    },
+    "GER|PAR": {
+      "status": "done",
+      "winner": "PAR",
+      "score": "1–1 (4–4 pens)"
+    },
+    "MAR|NED": {
+      "status": "done",
+      "winner": null,
+      "score": "1–1 (3–3 pens)"
+    },
+    "CIV|NOR": {
+      "status": "upcoming",
+      "winner": null,
+      "score": null
+    },
+    "FRA|SWE": {
+      "status": "upcoming",
+      "winner": null,
+      "score": null
+    },
+    "ECU|MEX": {
+      "status": "upcoming",
+      "winner": null,
+      "score": null
+    },
+    "COD|ENG": {
+      "status": "upcoming",
+      "winner": null,
+      "score": null
+    },
+    "BEL|SEN": {
+      "status": "upcoming",
+      "winner": null,
+      "score": null
+    },
+    "BIH|USA": {
+      "status": "upcoming",
+      "winner": null,
+      "score": null
+    },
+    "AUT|ESP": {
+      "status": "upcoming",
+      "winner": null,
+      "score": null
+    },
+    "CRO|POR": {
+      "status": "upcoming",
+      "winner": null,
+      "score": null
+    },
+    "ALG|SUI": {
+      "status": "upcoming",
+      "winner": null,
+      "score": null
+    },
+    "AUS|EGY": {
+      "status": "upcoming",
+      "winner": null,
+      "score": null
+    },
+    "ARG|CPV": {
+      "status": "upcoming",
+      "winner": null,
+      "score": null
+    },
+    "COL|GHA": {
+      "status": "upcoming",
+      "winner": null,
+      "score": null
+    }
+  },
+  "groups": {
+    "A": [
+      [
+        "MEX",
+        3,
+        0,
+        0,
+        6,
+        9,
+        "W"
+      ],
+      [
+        "RSA",
+        1,
+        1,
+        1,
+        -1,
+        4,
+        "RU"
+      ],
+      [
+        "KOR",
+        1,
+        0,
+        2,
+        -1,
+        3,
+        "out"
+      ],
+      [
+        "CZE",
+        0,
+        1,
+        2,
+        -4,
+        1,
+        "out"
+      ]
+    ],
+    "B": [
+      [
+        "SUI",
+        2,
+        1,
+        0,
+        4,
+        7,
+        "W"
+      ],
+      [
+        "CAN",
+        1,
+        1,
+        1,
+        5,
+        4,
+        "RU"
+      ],
+      [
+        "BIH",
+        1,
+        1,
+        1,
+        -1,
+        4,
+        "3rd"
+      ],
+      [
+        "QAT",
+        0,
+        1,
+        2,
+        -8,
+        1,
+        "out"
+      ]
+    ],
+    "C": [
+      [
+        "BRA",
+        2,
+        1,
+        0,
+        6,
+        7,
+        "W"
+      ],
+      [
+        "MAR",
+        2,
+        1,
+        0,
+        3,
+        7,
+        "RU"
+      ],
+      [
+        "SCO",
+        1,
+        0,
+        2,
+        -3,
+        3,
+        "out"
+      ],
+      [
+        "HAI",
+        0,
+        0,
+        3,
+        -6,
+        0,
+        "out"
+      ]
+    ],
+    "D": [
+      [
+        "USA",
+        2,
+        0,
+        1,
+        4,
+        6,
+        "W"
+      ],
+      [
+        "AUS",
+        1,
+        1,
+        1,
+        0,
+        4,
+        "RU"
+      ],
+      [
+        "PAR",
+        1,
+        1,
+        1,
+        -2,
+        4,
+        "3rd"
+      ],
+      [
+        "TUR",
+        1,
+        0,
+        2,
+        -2,
+        3,
+        "out"
+      ]
+    ],
+    "E": [
+      [
+        "GER",
+        2,
+        0,
+        1,
+        6,
+        6,
+        "W"
+      ],
+      [
+        "CIV",
+        2,
+        0,
+        1,
+        2,
+        6,
+        "RU"
+      ],
+      [
+        "ECU",
+        1,
+        1,
+        1,
+        0,
+        4,
+        "3rd"
+      ],
+      [
+        "CUW",
+        0,
+        1,
+        2,
+        -8,
+        1,
+        "out"
+      ]
+    ],
+    "F": [
+      [
+        "NED",
+        2,
+        1,
+        0,
+        6,
+        7,
+        "W"
+      ],
+      [
+        "JPN",
+        1,
+        2,
+        0,
+        4,
+        5,
+        "RU"
+      ],
+      [
+        "SWE",
+        1,
+        1,
+        1,
+        0,
+        4,
+        "3rd"
+      ],
+      [
+        "TUN",
+        0,
+        0,
+        3,
+        -10,
+        0,
+        "out"
+      ]
+    ],
+    "G": [
+      [
+        "BEL",
+        1,
+        2,
+        0,
+        4,
+        5,
+        "W"
+      ],
+      [
+        "EGY",
+        1,
+        2,
+        0,
+        2,
+        5,
+        "RU"
+      ],
+      [
+        "IRN",
+        0,
+        3,
+        0,
+        0,
+        3,
+        "out"
+      ],
+      [
+        "NZL",
+        0,
+        1,
+        2,
+        -6,
+        1,
+        "out"
+      ]
+    ],
+    "H": [
+      [
+        "ESP",
+        2,
+        1,
+        0,
+        5,
+        7,
+        "W"
+      ],
+      [
+        "CPV",
+        0,
+        3,
+        0,
+        0,
+        3,
+        "RU"
+      ],
+      [
+        "URU",
+        0,
+        2,
+        1,
+        -1,
+        2,
+        "out"
+      ],
+      [
+        "KSA",
+        0,
+        2,
+        1,
+        -4,
+        2,
+        "out"
+      ]
+    ],
+    "I": [
+      [
+        "FRA",
+        3,
+        0,
+        0,
+        8,
+        9,
+        "W"
+      ],
+      [
+        "NOR",
+        2,
+        0,
+        1,
+        1,
+        6,
+        "RU"
+      ],
+      [
+        "SEN",
+        1,
+        0,
+        2,
+        2,
+        3,
+        "3rd"
+      ],
+      [
+        "IRQ",
+        0,
+        0,
+        3,
+        -11,
+        0,
+        "out"
+      ]
+    ],
+    "J": [
+      [
+        "ARG",
+        3,
+        0,
+        0,
+        7,
+        9,
+        "W"
+      ],
+      [
+        "AUT",
+        1,
+        1,
+        1,
+        0,
+        4,
+        "RU"
+      ],
+      [
+        "ALG",
+        1,
+        1,
+        1,
+        -2,
+        4,
+        "3rd"
+      ],
+      [
+        "JOR",
+        0,
+        0,
+        3,
+        -5,
+        0,
+        "out"
+      ]
+    ],
+    "K": [
+      [
+        "COL",
+        2,
+        1,
+        0,
+        3,
+        7,
+        "W"
+      ],
+      [
+        "POR",
+        1,
+        2,
+        0,
+        5,
+        5,
+        "RU"
+      ],
+      [
+        "COD",
+        1,
+        1,
+        1,
+        1,
+        4,
+        "3rd"
+      ],
+      [
+        "UZB",
+        0,
+        0,
+        3,
+        -9,
+        0,
+        "out"
+      ]
+    ],
+    "L": [
+      [
+        "ENG",
+        2,
+        1,
+        0,
+        4,
+        7,
+        "W"
+      ],
+      [
+        "CRO",
+        2,
+        0,
+        1,
+        0,
+        6,
+        "RU"
+      ],
+      [
+        "GHA",
+        1,
+        1,
+        1,
+        0,
+        4,
+        "3rd"
+      ],
+      [
+        "PAN",
+        0,
+        0,
+        3,
+        -4,
+        0,
+        "out"
+      ]
+    ]
+  },
+  "scorers": [
+    {
+      "name": "Lionel Messi",
+      "team": "ARG",
+      "goals": 6,
+      "assists": 0
+    },
+    {
+      "name": "Vinicius Junior",
+      "team": "BRA",
+      "goals": 4,
+      "assists": 1
+    },
+    {
+      "name": "Kylian Mbappé",
+      "team": "FRA",
+      "goals": 4,
+      "assists": 2
+    },
+    {
+      "name": "Erling Haaland",
+      "team": "NOR",
+      "goals": 4,
+      "assists": 0
+    },
+    {
+      "name": "Ousmane Dembélé",
+      "team": "FRA",
+      "goals": 4,
+      "assists": 1
+    },
+    {
+      "name": "Ismael Saibari",
+      "team": "MAR",
+      "goals": 3,
+      "assists": 0
+    },
+    {
+      "name": "Kai Havertz",
+      "team": "GER",
+      "goals": 3,
+      "assists": 0
+    },
+    {
+      "name": "Deniz Undav",
+      "team": "GER",
+      "goals": 3,
+      "assists": 2
+    }
+  ]
 }
