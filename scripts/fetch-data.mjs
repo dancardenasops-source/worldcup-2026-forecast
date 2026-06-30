@@ -33,6 +33,14 @@ const TLA_OVERRIDES = {
   // e.g. "NETH": "NED",
 };
 
+/* Known results the feed is missing or ships malformed (football-data sometimes
+   returns penalty shootouts with no winner and a tied record). Keyed by sorted
+   team-pair. Applied ONLY when the API itself provides no winner, so the official
+   result automatically takes over once it lands — remove the entry then. */
+const RESULT_OVERRIDES = {
+  "MAR|NED": { winner: "MAR", score: "1–1 (MAR on pens)" }, // Morocco beat Netherlands on penalties
+};
+
 /* Pairs of [home, away] dashboard codes for every Round-of-32 slot, so we can
    overlay live results without depending on the API's slot numbering. Sorted
    key is order-insensitive. Must stay in sync with R32 in Dashboard.jsx. */
@@ -104,12 +112,15 @@ function buildResults(matches) {
     if (!knockout.has(m.stage)) continue;
     const h = codeOf(m.homeTeam), a = codeOf(m.awayTeam);
     if (!h || !a) continue;
-    results[pairKey(h, a)] = {
-      status: STATUS(m.status),
-      winner: winnerCode(m),
-      score: m.status === "FINISHED" ? scoreString(m.score)
-        : (m.status === "IN_PLAY" || m.status === "PAUSED") ? "in progress" : null,
-    };
+    const key = pairKey(h, a);
+    let status = STATUS(m.status);
+    let winner = winnerCode(m);
+    let score = m.status === "FINISHED" ? scoreString(m.score)
+      : (m.status === "IN_PLAY" || m.status === "PAUSED") ? "in progress" : null;
+    // Fill in a known result the feed couldn't resolve.
+    const ov = RESULT_OVERRIDES[key];
+    if (ov && !winner) { winner = ov.winner; if (ov.score) score = ov.score; status = "done"; }
+    results[key] = { status, winner, score };
   }
   return results;
 }

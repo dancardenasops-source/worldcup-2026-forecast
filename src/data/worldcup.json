@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-30T05:42:37.677Z",
+  "updated": "2026-06-30T05:59:58.534Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -19,8 +19,8 @@
     },
     "MAR|NED": {
       "status": "done",
-      "winner": null,
-      "score": "1–1 (3–3 pens)"
+      "winner": "MAR",
+      "score": "1–1 (MAR on pens)"
     },
     "CIV|NOR": {
       "status": "upcoming",
