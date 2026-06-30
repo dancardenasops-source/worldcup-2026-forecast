@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-30T17:18:49.513Z",
+  "updated": "2026-06-30T19:13:33.502Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -23,9 +23,9 @@
       "score": "1–1 (2–3 pens)"
     },
     "CIV|NOR": {
-      "status": "live",
-      "winner": null,
-      "score": "in progress"
+      "status": "done",
+      "winner": "NOR",
+      "score": "1–2"
     },
     "FRA|SWE": {
       "status": "upcoming",
@@ -554,6 +554,12 @@
       "assists": 0
     },
     {
+      "name": "Erling Haaland",
+      "team": "NOR",
+      "goals": 5,
+      "assists": 0
+    },
+    {
       "name": "Vinicius Junior",
       "team": "BRA",
       "goals": 4,
@@ -564,12 +570,6 @@
       "team": "FRA",
       "goals": 4,
       "assists": 2
-    },
-    {
-      "name": "Erling Haaland",
-      "team": "NOR",
-      "goals": 4,
-      "assists": 0
     },
     {
       "name": "Ousmane Dembélé",
