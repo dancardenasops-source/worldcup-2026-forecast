@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-01T20:28:21.522Z",
+  "updated": "2026-07-01T22:05:42.181Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -594,16 +594,16 @@
       "assists": 2
     },
     {
+      "name": "Ismaïla Sarr",
+      "team": "SEN",
+      "goals": 4,
+      "assists": 1
+    },
+    {
       "name": "Julián Quiñones",
       "team": "MEX",
       "goals": 3,
       "assists": 1
-    },
-    {
-      "name": "Ismael Saibari",
-      "team": "MAR",
-      "goals": 3,
-      "assists": 0
     }
   ]
 }
