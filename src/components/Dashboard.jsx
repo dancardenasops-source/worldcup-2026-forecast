@@ -290,9 +290,13 @@ function MatchCard({ home, away, status, winner, score, date, venue, pHome, pAwa
 
 function Bracket({ model, R32 }) {
   const { slotDist, r16, qf, sf, fin, top } = model;
+  // Projected card: show the two most-likely occupants and their HEAD-TO-HEAD win
+  // probability (so it reads like the real-match cards and sums to 100%), rather
+  // than their chance of reaching the slot — which is 100% once a team has clinched.
   const projMatch = (nodeA, nodeB) => {
     const a = top(nodeA), b = top(nodeB);
-    return { home: a[0], away: b[0], pHome: a[1], pAway: b[1], proj: true, status: "upcoming" };
+    const pa = S[a[0]] / (S[a[0]] + S[b[0]]);
+    return { home: a[0], away: b[0], pHome: pa, pAway: 1 - pa, proj: true, status: "upcoming" };
   };
   const Col = ({ title, children }) => (
     <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-around", gap: 12, minWidth: 208 }}>
@@ -304,8 +308,8 @@ function Bracket({ model, R32 }) {
   return (
     <div>
       <SecHead title="The Bracket">
-        Round of 32 is live. Finished games are locked; every later slot shows the model's most-likely
-        occupant and its chance of getting there. Scroll right toward the final.
+        Round of 32 is live. Finished games are locked; each later card shows the most-likely matchup
+        and each side's chance of winning it. Scroll right toward the final.
       </SecHead>
       <div style={{ overflowX: "auto", paddingBottom: 12, WebkitOverflowScrolling: "touch" }}>
         <div style={{ display: "flex", gap: 22, minWidth: 1120 }}>
