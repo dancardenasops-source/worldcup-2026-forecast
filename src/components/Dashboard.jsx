@@ -1,5 +1,12 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import LIVE from "../data/worldcup.json";
+
+/* Live data is fetched at runtime from the committed JSON on GitHub (public,
+   CORS-open, no token). This way the every-10-min data commits show up without
+   a Cloudflare rebuild — and the Refresh button forces an instant re-fetch.
+   The baked-in import above is the first-paint value and offline fallback. */
+const DATA_URL =
+  "https://raw.githubusercontent.com/dancardenasops-source/worldcup-2026-forecast/main/src/data/worldcup.json";
 
 /* =============================================================================
    FIFA WORLD CUP 2026 — STATISTICS & FORECAST DASHBOARD
@@ -77,13 +84,15 @@ const R32_BASE = [
   { slot: 88, home: "AUS", away: "EGY", date: "Jul 3", venue: "Dallas", status: "upcoming", winner: null },
 ];
 
-/* Overlay live knockout results (keyed by sorted team-pair) onto the snapshot.
+/* Overlay a live-data object (worldcup.json shape) onto the fixed R32 fixtures.
    A live entry replaces status/winner/score; missing entries keep the snapshot. */
 const pairKey = (a, b) => [a, b].sort().join("|");
-const R32 = R32_BASE.map((m) => {
-  const live = LIVE.results?.[pairKey(m.home, m.away)];
-  return live ? { ...m, status: live.status, winner: live.winner ?? null, score: live.score ?? m.score } : m;
-});
+function deriveR32(data) {
+  return R32_BASE.map((m) => {
+    const live = data?.results?.[pairKey(m.home, m.away)];
+    return live ? { ...m, status: live.status, winner: live.winner ?? null, score: live.score ?? m.score } : m;
+  });
+}
 
 /* Bracket wiring (winner-of). R16 pairings confirmed via Yahoo Sports; QF/SF/Final
    follow the fixed FIFA bracket. */
@@ -109,7 +118,7 @@ const GROUPS_BASE = {
   L: [["ENG", 2, 1, 0, 5, 7, "W"], ["CRO", 2, 0, 1, 3, 6, "RU"], ["GHA", 1, 1, 1, -1, 4, "3rd"], ["PAN", 0, 0, 3, -7, 0, "out"]],
 };
 /* Live standings replace the whole table when present; else fall back. */
-const GROUPS = LIVE.groups && Object.keys(LIVE.groups).length ? LIVE.groups : GROUPS_BASE;
+const deriveGroups = (data) => (data?.groups && Object.keys(data.groups).length ? data.groups : GROUPS_BASE);
 const GROUP_NAMES = {
   KOR: "South Korea", CZE: "Czechia", QAT: "Qatar", SCO: "Scotland", HAI: "Haiti",
   TUR: "Türkiye", CUW: "Curaçao", TUN: "Tunisia", IRN: "Iran", NZL: "New Zealand",
@@ -129,14 +138,15 @@ const SCORERS_BASE = [
   { name: "Deniz Undav", team: "GER", goals: 3, assists: 2 },
   { name: "Jonathan David", team: "CAN", goals: 3, assists: 0 },
 ];
-const SCORERS = LIVE.scorers && LIVE.scorers.length ? LIVE.scorers : SCORERS_BASE;
+const deriveScorers = (data) => (data?.scorers && data.scorers.length ? data.scorers : SCORERS_BASE);
 
-/* "Updated" label: the live fetch timestamp if we have one, else the snapshot date. */
-const UPDATED_LABEL = LIVE.updated
-  ? new Date(LIVE.updated).toLocaleString("en-US", {
-      month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZoneName: "short",
-    })
-  : "Jun 29, 2026";
+/* "Updated" label from an ISO timestamp; the snapshot date if we have none. */
+const fmtUpdated = (iso) =>
+  iso
+    ? new Date(iso).toLocaleString("en-US", {
+        month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZoneName: "short",
+      })
+    : "Jun 29, 2026";
 
 /* =============================================================================
    PROBABILITY MODEL — strength-ratio match model, propagated through the bracket.
@@ -160,7 +170,7 @@ const merge = (nodes) => {
   return out;
 };
 
-function buildModel() {
+function buildModel(R32) {
   const slotDist = {};
   R32.forEach((m) => {
     if (m.winner) slotDist[m.slot] = { [m.winner]: 1 };
@@ -278,7 +288,7 @@ function MatchCard({ home, away, status, winner, score, date, venue, pHome, pAwa
   );
 }
 
-function Bracket({ model }) {
+function Bracket({ model, R32 }) {
   const { slotDist, r16, qf, sf, fin, top } = model;
   const projMatch = (nodeA, nodeB) => {
     const a = top(nodeA), b = top(nodeB);
@@ -408,7 +418,7 @@ function Forecast({ model }) {
 }
 
 /* ---------- GROUPS ---------- */
-function Groups() {
+function Groups({ GROUPS }) {
   const tag = (s) => {
     if (s === "W") return { t: "1st", c: C.good, b: "#1f5e3b" };
     if (s === "RU") return { t: "2nd", c: C.good, b: "#1f5e3b" };
@@ -463,7 +473,7 @@ function Groups() {
 }
 
 /* ---------- LEADERS ---------- */
-function Leaders() {
+function Leaders({ SCORERS }) {
   const maxG = SCORERS[0].goals;
   return (
     <div>
@@ -529,13 +539,38 @@ function Methodology({ onClose }) {
    APP
    ============================================================================= */
 export default function Dashboard() {
-  const model = useMemo(buildModel, []);
+  const [data, setData] = useState(LIVE);
+  const [status, setStatus] = useState("idle"); // idle | loading | ok | error
   const [tab, setTab] = useState("bracket");
   const [methodOpen, setMethodOpen] = useState(false);
+
+  // Everything downstream recomputes whenever `data` changes.
+  const { R32, GROUPS, SCORERS, model } = useMemo(() => {
+    const r32 = deriveR32(data);
+    return { R32: r32, GROUPS: deriveGroups(data), SCORERS: deriveScorers(data), model: buildModel(r32) };
+  }, [data]);
+
+  // Pull the latest committed data from GitHub (cache-busted). Falls back to the
+  // current data on any failure, so the page never breaks.
+  const refresh = useCallback(async () => {
+    setStatus("loading");
+    try {
+      const res = await fetch(`${DATA_URL}?t=${Date.now()}`, { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      if (json && json.results) { setData(json); setStatus("ok"); }
+      else throw new Error("bad payload");
+    } catch (e) {
+      setStatus("error");
+    }
+  }, []);
+  useEffect(() => { refresh(); }, [refresh]);
+
   const fav = model.top(model.champion);
   const played = R32.filter((m) => m.status === "done").length;
   const live = R32.find((m) => m.status === "live");
   const nextUp = R32.find((m) => m.status === "upcoming");
+  const updatedLabel = fmtUpdated(data?.updated);
 
   const TABS = [["bracket", "Bracket"], ["forecast", "Forecast"], ["groups", "Groups"], ["leaders", "Golden Boot"]];
 
@@ -552,6 +587,9 @@ export default function Dashboard() {
         @keyframes wcpulse { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
         .wc-tab { font-family: ${FD}; font-weight: 600; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; color: ${C.muted}; background: transparent; border: 1px solid transparent; border-radius: 7px; padding: 8px 13px; cursor: pointer; transition: background .15s, color .15s; }
         .wc-tab:hover { color: ${C.text}; background: ${C.panel}; }
+        .wc-tab:disabled { opacity: 0.55; cursor: default; }
+        .wc-spin { animation: wcspin 0.8s linear infinite; }
+        @keyframes wcspin { to { transform: rotate(360deg); } }
         @media (max-width: 880px) { .wc-hero { grid-template-columns: 1fr !important; } .wc-grid2 { grid-template-columns: 1fr !important; } }
         @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
       `}</style>
@@ -571,7 +609,16 @@ export default function Dashboard() {
             ))}
             <button className="wc-tab" onClick={() => setMethodOpen(true)} style={{ color: C.faint }}>ⓘ Method</button>
           </nav>
-          <div style={{ fontFamily: FM, fontSize: 11, color: C.faint, whiteSpace: "nowrap" }}>UPDATED {UPDATED_LABEL.toUpperCase()}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontFamily: FM, fontSize: 11, color: status === "error" ? C.coral : C.faint, whiteSpace: "nowrap" }}>
+              {status === "error" ? "FEED OFFLINE" : `UPD ${updatedLabel.toUpperCase()}`}
+            </span>
+            <button className="wc-tab" onClick={refresh} disabled={status === "loading"}
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, color: C.cyan, border: `1px solid ${C.line}` }}>
+              <span className={status === "loading" ? "wc-spin" : undefined} style={{ display: "inline-block", fontSize: 14, lineHeight: 1 }}>↻</span>
+              {status === "loading" ? "Updating" : "Refresh"}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -621,10 +668,10 @@ export default function Dashboard() {
 
       {/* BODY */}
       <div style={{ maxWidth: 1240, margin: "0 auto", padding: "40px 22px 60px" }}>
-        {tab === "bracket" && <Bracket model={model} />}
+        {tab === "bracket" && <Bracket model={model} R32={R32} />}
         {tab === "forecast" && <Forecast model={model} />}
-        {tab === "groups" && <Groups />}
-        {tab === "leaders" && <Leaders />}
+        {tab === "groups" && <Groups GROUPS={GROUPS} />}
+        {tab === "leaders" && <Leaders SCORERS={SCORERS} />}
       </div>
 
       {/* FOOTER */}
