@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-01T16:33:29.168Z",
+  "updated": "2026-07-01T18:30:25.940Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -38,9 +38,9 @@
       "score": "2–0"
     },
     "COD|ENG": {
-      "status": "upcoming",
-      "winner": "COD",
-      "score": null
+      "status": "done",
+      "winner": "ENG",
+      "score": "2–1"
     },
     "BEL|SEN": {
       "status": "upcoming",
@@ -576,6 +576,12 @@
       "assists": 0
     },
     {
+      "name": "Harry Kane",
+      "team": "ENG",
+      "goals": 5,
+      "assists": 0
+    },
+    {
       "name": "Vinicius Junior",
       "team": "BRA",
       "goals": 4,
@@ -596,12 +602,6 @@
     {
       "name": "Ismael Saibari",
       "team": "MAR",
-      "goals": 3,
-      "assists": 0
-    },
-    {
-      "name": "Kai Havertz",
-      "team": "GER",
       "goals": 3,
       "assists": 0
     }
