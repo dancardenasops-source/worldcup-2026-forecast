@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-01T18:30:25.940Z",
+  "updated": "2026-07-01T20:28:21.522Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -43,9 +43,9 @@
       "score": "2–1"
     },
     "BEL|SEN": {
-      "status": "upcoming",
+      "status": "live",
       "winner": null,
-      "score": null
+      "score": "in progress"
     },
     "BIH|USA": {
       "status": "upcoming",
