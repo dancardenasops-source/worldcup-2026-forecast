@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-30T23:54:26.595Z",
+  "updated": "2026-07-01T04:18:46.991Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -33,9 +33,9 @@
       "score": "3–0"
     },
     "ECU|MEX": {
-      "status": "upcoming",
-      "winner": null,
-      "score": null
+      "status": "done",
+      "winner": "MEX",
+      "score": "2–0"
     },
     "COD|ENG": {
       "status": "upcoming",
@@ -578,6 +578,12 @@
       "assists": 2
     },
     {
+      "name": "Julián Quiñones",
+      "team": "MEX",
+      "goals": 3,
+      "assists": 1
+    },
+    {
       "name": "Ismael Saibari",
       "team": "MAR",
       "goals": 3,
@@ -588,12 +594,6 @@
       "team": "GER",
       "goals": 3,
       "assists": 0
-    },
-    {
-      "name": "Deniz Undav",
-      "team": "GER",
-      "goals": 3,
-      "assists": 2
     }
   ]
 }
