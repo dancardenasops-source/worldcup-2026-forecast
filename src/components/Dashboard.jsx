@@ -248,16 +248,17 @@ function SecHead({ title, children }) {
 }
 
 /* ---------- BRACKET ---------- */
-function MatchCard({ home, away, status, winner, score, date, venue, pHome, pAway, proj }) {
+function MatchCard({ home, away, status, winner, score, date, venue, pHome, pAway, proj, mirror }) {
   const microW = pHome != null && pAway != null && pHome + pAway > 0 ? (pHome / (pHome + pAway)) * 100 : null;
+  const rowDir = mirror ? "row-reverse" : "row";
   const row = (code, p, isWin, isLose) => (
     <div style={{
       display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8,
-      padding: "5px 7px", borderRadius: 7,
+      padding: "5px 7px", borderRadius: 7, flexDirection: rowDir,
       background: isWin ? "rgba(255,90,60,0.12)" : "transparent",
       opacity: isLose ? 0.42 : 1,
     }}>
-      <span style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 13, fontWeight: isWin ? 800 : 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+      <span style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 13, fontWeight: isWin ? 800 : 600, whiteSpace: "nowrap", overflow: "hidden", flexDirection: rowDir }}>
         <span style={{ fontSize: 15 }}>{flagFor(code)}</span>
         <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{nameFor(code)}</span>
       </span>
@@ -268,7 +269,7 @@ function MatchCard({ home, away, status, winner, score, date, venue, pHome, pAwa
   );
   return (
     <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 11, padding: 8 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 4px 6px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 4px 6px", flexDirection: rowDir }}>
         <span style={{ fontFamily: FM, fontSize: 9.5, letterSpacing: 0.6, textTransform: "uppercase", color: C.faint }}>
           {proj ? "Projected" : date}
         </span>
@@ -277,12 +278,12 @@ function MatchCard({ home, away, status, winner, score, date, venue, pHome, pAwa
       {row(home, pHome, winner === home, winner && winner !== home)}
       {row(away, pAway, winner === away, winner && winner !== away)}
       {status !== "done" && microW != null && (
-        <div style={{ height: 4, borderRadius: 3, background: "#0b0f0d", overflow: "hidden", margin: "5px 7px 1px" }}>
+        <div style={{ height: 4, borderRadius: 3, background: "#0b0f0d", overflow: "hidden", margin: "5px 7px 1px", display: "flex", justifyContent: mirror ? "flex-end" : "flex-start" }}>
           <div style={{ width: `${microW}%`, height: "100%", background: C.coral, borderRadius: 3, transition: "width .6s cubic-bezier(.2,.7,.2,1)" }} />
         </div>
       )}
       {score && (
-        <div style={{ textAlign: "right", fontFamily: FM, fontSize: 10, color: C.faint, padding: "3px 7px 0" }}>{score}</div>
+        <div style={{ textAlign: mirror ? "left" : "right", fontFamily: FM, fontSize: 10, color: C.faint, padding: "3px 7px 0" }}>{score}</div>
       )}
     </div>
   );
@@ -298,47 +299,55 @@ function Bracket({ model, R32 }) {
     const pa = S[a[0]] / (S[a[0]] + S[b[0]]);
     return { home: a[0], away: b[0], pHome: pa, pAway: 1 - pa, proj: true, status: "upcoming" };
   };
-  const Col = ({ title, children }) => (
-    <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-around", gap: 12, minWidth: 208 }}>
-      <div style={{ fontFamily: FD, fontSize: 11, fontWeight: 700, color: C.faint, letterSpacing: 1.4, textTransform: "uppercase", textAlign: "center", marginBottom: 2 }}>{title}</div>
-      {children}
+  const bySlot = Object.fromEntries(R32.map((m) => [m.slot, m]));
+  const r32Card = (slot, mirror) => {
+    const m = bySlot[slot], d = slotDist[slot];
+    return <MatchCard key={"s" + slot} home={m.home} away={m.away} status={m.status} winner={m.winner}
+      score={m.score} date={m.date} venue={m.venue} pHome={d[m.home]} pAway={d[m.away]} mirror={mirror} />;
+  };
+  const r16Card = (i, mirror) => <MatchCard key={"r16" + i} {...projMatch(slotDist[R16_PAIRS[i][0]], slotDist[R16_PAIRS[i][1]])} mirror={mirror} />;
+  const qfCard = (i, mirror) => <MatchCard key={"qf" + i} {...projMatch(r16[QF_PAIRS[i][0]], r16[QF_PAIRS[i][1]])} mirror={mirror} />;
+  const sfCard = (i, mirror) => <MatchCard key={"sf" + i} {...projMatch(qf[SF_PAIRS[i][0]], qf[SF_PAIRS[i][1]])} mirror={mirror} />;
+
+  const Col = ({ title, children, justify }) => (
+    <div style={{ display: "flex", flexDirection: "column", minWidth: 190 }}>
+      <div style={{ fontFamily: FD, fontSize: 11, fontWeight: 700, color: C.faint, letterSpacing: 1.4, textTransform: "uppercase", textAlign: "center", marginBottom: 10 }}>{title}</div>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: justify || "space-around", gap: 10 }}>{children}</div>
     </div>
   );
   const champ = top(fin);
+
+  // Left half feeds semifinal 0, right half feeds semifinal 1. The card order in
+  // each round keeps every match centered between the two that feed it, and the
+  // right half is mirrored so both sides converge on the final in the center.
+  const leftR32 = [73, 75, 74, 77, 76, 78, 81, 82];   // r16 slots 0,2,1,3
+  const rightR32 = [79, 80, 83, 84, 85, 86, 87, 88];  // r16 slots 4,5,6,7
+
   return (
     <div>
       <SecHead title="The Bracket">
         Round of 32 is live. Finished games are locked; each later card shows the most-likely matchup
-        and each side's chance of winning it. Scroll right toward the final.
+        and each side's chance of winning it. The two halves converge on the final.
       </SecHead>
       <div style={{ overflowX: "auto", paddingBottom: 12, WebkitOverflowScrolling: "touch" }}>
-        <div style={{ display: "flex", gap: 22, minWidth: 1120 }}>
-          <Col title="Round of 32">
-            {R32.map((m) => {
-              const d = slotDist[m.slot];
-              return <MatchCard key={m.slot} home={m.home} away={m.away} status={m.status}
-                winner={m.winner} score={m.score} date={m.date} venue={m.venue}
-                pHome={d[m.home]} pAway={d[m.away]} />;
-            })}
-          </Col>
-          <Col title="Round of 16">
-            {R16_PAIRS.map((pair, i) => <MatchCard key={i} {...projMatch(slotDist[pair[0]], slotDist[pair[1]])} />)}
-          </Col>
-          <Col title="Quarterfinals">
-            {QF_PAIRS.map((pair, i) => <MatchCard key={i} {...projMatch(r16[pair[0]], r16[pair[1]])} />)}
-          </Col>
-          <Col title="Semifinals">
-            {SF_PAIRS.map((pair, i) => <MatchCard key={i} {...projMatch(qf[pair[0]], qf[pair[1]])} />)}
-          </Col>
-          <Col title="Final">
+        <div style={{ display: "flex", gap: 12, minWidth: 1780, alignItems: "stretch" }}>
+          <Col title="Round of 32">{leftR32.map((s) => r32Card(s, false))}</Col>
+          <Col title="Round of 16">{[0, 2, 1, 3].map((i) => r16Card(i, false))}</Col>
+          <Col title="Quarterfinals">{[0, 1].map((i) => qfCard(i, false))}</Col>
+          <Col title="Semifinals">{sfCard(0, false)}</Col>
+          <Col title="Final" justify="center">
             <MatchCard {...projMatch(sf[0], sf[1])} />
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, background: "linear-gradient(160deg, rgba(244,192,78,0.12), transparent)", border: "1px solid #5a4a1e", borderRadius: 14, padding: "20px 14px", marginTop: 6 }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, background: "linear-gradient(160deg, rgba(244,192,78,0.12), transparent)", border: "1px solid #5a4a1e", borderRadius: 14, padding: "20px 14px", marginTop: 14 }}>
               <div style={{ fontFamily: FD, fontSize: 10, fontWeight: 700, letterSpacing: 1.6, textTransform: "uppercase", color: C.gold }}>Projected champion</div>
               <div style={{ fontSize: 40 }}>{flagFor(champ[0])}</div>
               <div style={{ fontFamily: FD, fontWeight: 700, fontSize: 22, textTransform: "uppercase", letterSpacing: "-0.01em" }}>{nameFor(champ[0])}</div>
               <div style={{ fontFamily: FM, color: C.gold, fontSize: 14 }}>{pct(champ[1])} to lift the trophy</div>
             </div>
           </Col>
+          <Col title="Semifinals">{sfCard(1, true)}</Col>
+          <Col title="Quarterfinals">{[2, 3].map((i) => qfCard(i, true))}</Col>
+          <Col title="Round of 16">{[4, 5, 6, 7].map((i) => r16Card(i, true))}</Col>
+          <Col title="Round of 32">{rightR32.map((s) => r32Card(s, true))}</Col>
         </div>
       </div>
     </div>
