@@ -1,0 +1,10 @@
+# Cloudflare Workers config for the Git-connected build.
+# The build runs `npm run build` (outputs ./dist) then `npx wrangler deploy`,
+# which needs this file. `name` must match the existing Worker so deploys update
+# the same site and keep the mundialanalytics.<subdomain>.workers.dev URL.
+name = "mundialanalytics"
+compatibility_date = "2026-07-02"
+
+# Static Astro output — serve ./dist as Worker static assets (no server code).
+[assets]
+directory = "./dist"
