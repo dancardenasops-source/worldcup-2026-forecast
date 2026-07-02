@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-02T01:52:23.788Z",
+  "updated": "2026-07-02T06:04:18.396Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -48,9 +48,9 @@
       "score": "3–2"
     },
     "BIH|USA": {
-      "status": "live",
+      "status": "done",
       "winner": "USA",
-      "score": "in progress"
+      "score": "2–0"
     },
     "AUT|ESP": {
       "status": "upcoming",
