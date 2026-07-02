@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-02T21:13:41.692Z",
+  "updated": "2026-07-02T23:43:37.286Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -58,9 +58,9 @@
       "score": "3–0"
     },
     "CRO|POR": {
-      "status": "upcoming",
+      "status": "live",
       "winner": null,
-      "score": null
+      "score": "in progress"
     },
     "ALG|SUI": {
       "status": "upcoming",
