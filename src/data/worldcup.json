@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-02T19:51:22.918Z",
+  "updated": "2026-07-02T21:13:41.692Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -53,9 +53,9 @@
       "score": "2–0"
     },
     "AUT|ESP": {
-      "status": "upcoming",
+      "status": "done",
       "winner": "ESP",
-      "score": null
+      "score": "3–0"
     },
     "CRO|POR": {
       "status": "upcoming",
@@ -598,6 +598,12 @@
       "assists": 1
     },
     {
+      "name": "Mikel Oyarzabal",
+      "team": "ESP",
+      "goals": 4,
+      "assists": 1
+    },
+    {
       "name": "Ousmane Dembélé",
       "team": "FRA",
       "goals": 4,
@@ -607,12 +613,6 @@
       "name": "Ismaïla Sarr",
       "team": "SEN",
       "goals": 4,
-      "assists": 1
-    },
-    {
-      "name": "Julián Quiñones",
-      "team": "MEX",
-      "goals": 3,
       "assists": 1
     }
   ]
