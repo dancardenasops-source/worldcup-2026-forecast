@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-03T22:34:52.442Z",
+  "updated": "2026-07-03T23:40:57.358Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -74,7 +74,7 @@
     },
     "ARG|CPV": {
       "status": "live",
-      "winner": "ARG",
+      "winner": null,
       "score": "in progress"
     },
     "COL|GHA": {
