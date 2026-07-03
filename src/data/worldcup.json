@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-03T05:30:08.504Z",
+  "updated": "2026-07-03T18:37:46.201Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -68,9 +68,9 @@
       "score": "2–0"
     },
     "AUS|EGY": {
-      "status": "upcoming",
-      "winner": null,
-      "score": null
+      "status": "live",
+      "winner": "EGY",
+      "score": "in progress"
     },
     "ARG|CPV": {
       "status": "upcoming",
