@@ -94,13 +94,15 @@ function deriveR32(data) {
   });
 }
 
-/* Bracket wiring (winner-of). R16 pairings confirmed via Yahoo Sports; QF/SF/Final
-   follow the fixed FIFA bracket. */
+/* Bracket wiring (winner-of), matching the official FIFA 2026 bracket exactly.
+   R16 pairs are grouped by half so adjacent pairs feed the same quarterfinal:
+   indices 0-3 = left half (→ semifinal 0), 4-7 = right half (→ semifinal 1). */
 const R16_PAIRS = [
-  [73, 75], [76, 78], [74, 77], [81, 82], [79, 80], [83, 84], [85, 86], [87, 88],
+  [73, 75], [74, 77], [83, 84], [81, 82], // left  (FIFA P90, P89, P93, P94)
+  [76, 78], [79, 80], [86, 88], [85, 87], // right (FIFA P91, P92, P95, P96)
 ];
-const QF_PAIRS = [[0, 2], [1, 3], [4, 5], [6, 7]];
-const SF_PAIRS = [[0, 1], [2, 3]];
+const QF_PAIRS = [[0, 1], [2, 3], [4, 5], [6, 7]]; // P97, P98, P99, P100
+const SF_PAIRS = [[0, 1], [2, 3]];                 // P101 (left), P102 (right)
 
 /* ---- FINAL GROUP STANDINGS (A–L) -------------------------------------------- */
 const GROUPS_BASE = {
@@ -320,8 +322,8 @@ function Bracket({ model, R32 }) {
   // Left half feeds semifinal 0, right half feeds semifinal 1. The card order in
   // each round keeps every match centered between the two that feed it, and the
   // right half is mirrored so both sides converge on the final in the center.
-  const leftR32 = [73, 75, 74, 77, 76, 78, 81, 82];   // r16 slots 0,2,1,3
-  const rightR32 = [79, 80, 83, 84, 85, 86, 87, 88];  // r16 slots 4,5,6,7
+  const leftR32 = [73, 75, 74, 77, 83, 84, 81, 82];   // feeds r16[0..3]
+  const rightR32 = [76, 78, 79, 80, 86, 88, 85, 87];  // feeds r16[4..7]
 
   return (
     <div>
@@ -332,7 +334,7 @@ function Bracket({ model, R32 }) {
       <div style={{ overflowX: "auto", paddingBottom: 12, WebkitOverflowScrolling: "touch" }}>
         <div style={{ display: "flex", gap: 12, minWidth: 1780, alignItems: "stretch" }}>
           <Col title="Round of 32">{leftR32.map((s) => r32Card(s, false))}</Col>
-          <Col title="Round of 16">{[0, 2, 1, 3].map((i) => r16Card(i, false))}</Col>
+          <Col title="Round of 16">{[0, 1, 2, 3].map((i) => r16Card(i, false))}</Col>
           <Col title="Quarterfinals">{[0, 1].map((i) => qfCard(i, false))}</Col>
           <Col title="Semifinals">{sfCard(0, false)}</Col>
           <Col title="Final" justify="center">
