@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-04T05:12:34.124Z",
+  "updated": "2026-07-04T08:07:00.835Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -70,7 +70,7 @@
     "AUS|EGY": {
       "status": "done",
       "winner": "EGY",
-      "score": "1–1 (4–4 pens)"
+      "score": "1–1 (2–4 pens)"
     },
     "ARG|CPV": {
       "status": "done",
@@ -102,7 +102,22 @@
       "winner": null,
       "score": null
     },
+    "ESP|POR": {
+      "status": "upcoming",
+      "winner": null,
+      "score": null
+    },
     "BEL|USA": {
+      "status": "upcoming",
+      "winner": null,
+      "score": null
+    },
+    "ARG|EGY": {
+      "status": "upcoming",
+      "winner": null,
+      "score": null
+    },
+    "COL|SUI": {
       "status": "upcoming",
       "winner": null,
       "score": null
