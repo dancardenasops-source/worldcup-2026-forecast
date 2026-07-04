@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-04T08:07:00.835Z",
+  "updated": "2026-07-04T13:43:34.161Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -586,7 +586,7 @@
       "name": "Lionel Messi",
       "team": "ARG",
       "goals": 7,
-      "assists": 1
+      "assists": 0
     },
     {
       "name": "Kylian Mbappé",
