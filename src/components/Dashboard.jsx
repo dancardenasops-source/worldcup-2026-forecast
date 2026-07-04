@@ -104,6 +104,41 @@ const R16_PAIRS = [
 const QF_PAIRS = [[0, 1], [2, 3], [4, 5], [6, 7]]; // P97, P98, P99, P100
 const SF_PAIRS = [[0, 1], [2, 3]];                 // P101 (left), P102 (right)
 
+/* Host city -> stadium, for the Round-of-32 cards (whose data carries the city). */
+const STADIUMS = {
+  "Los Angeles": "SoFi Stadium", "Boston": "Gillette Stadium", "Monterrey": "Estadio BBVA",
+  "Houston": "NRG Stadium", "East Rutherford": "MetLife Stadium", "Dallas": "AT&T Stadium",
+  "Mexico City": "Estadio Azteca", "Atlanta": "Mercedes-Benz Stadium", "Santa Clara": "Levi's Stadium",
+  "Seattle": "Lumen Field", "Toronto": "BMO Field", "Vancouver": "BC Place",
+  "Miami": "Hard Rock Stadium", "Kansas City": "Arrowhead Stadium",
+};
+
+/* Official dates + venues for the later rounds (source: FIFA / Wikipedia knockout
+   schedule). Indices align with R16_PAIRS / QF_PAIRS / SF_PAIRS above. */
+const SCHEDULE = {
+  r16: [
+    { date: "Jul 4", city: "Houston", stadium: "NRG Stadium" },                 // P90
+    { date: "Jul 4", city: "Philadelphia", stadium: "Lincoln Financial Field" },// P89
+    { date: "Jul 6", city: "Arlington", stadium: "AT&T Stadium" },              // P93
+    { date: "Jul 6", city: "Seattle", stadium: "Lumen Field" },                 // P94
+    { date: "Jul 5", city: "East Rutherford", stadium: "MetLife Stadium" },     // P91
+    { date: "Jul 5", city: "Mexico City", stadium: "Estadio Azteca" },          // P92
+    { date: "Jul 7", city: "Atlanta", stadium: "Mercedes-Benz Stadium" },       // P95
+    { date: "Jul 7", city: "Vancouver", stadium: "BC Place" },                  // P96
+  ],
+  qf: [
+    { date: "Jul 9", city: "Foxborough", stadium: "Gillette Stadium" },   // P97
+    { date: "Jul 10", city: "Inglewood", stadium: "SoFi Stadium" },       // P98
+    { date: "Jul 11", city: "Miami", stadium: "Hard Rock Stadium" },      // P99
+    { date: "Jul 11", city: "Kansas City", stadium: "Arrowhead Stadium" },// P100
+  ],
+  sf: [
+    { date: "Jul 14", city: "Arlington", stadium: "AT&T Stadium" },       // P101
+    { date: "Jul 15", city: "Atlanta", stadium: "Mercedes-Benz Stadium" },// P102
+  ],
+  final: { date: "Jul 19", city: "East Rutherford", stadium: "MetLife Stadium" }, // P104
+};
+
 /* ---- FINAL GROUP STANDINGS (A–L) -------------------------------------------- */
 const GROUPS_BASE = {
   A: [["MEX", 3, 0, 0, 6, 9, "W"], ["RSA", 1, 1, 1, -1, 4, "RU"], ["KOR", 1, 0, 2, -1, 3, "out"], ["CZE", 0, 1, 2, -4, 1, "out"]],
@@ -250,9 +285,10 @@ function SecHead({ title, children }) {
 }
 
 /* ---------- BRACKET ---------- */
-function MatchCard({ home, away, status, winner, score, date, venue, pHome, pAway, proj, mirror }) {
+function MatchCard({ home, away, status, winner, score, date, city, stadium, pHome, pAway, proj, mirror }) {
   const microW = pHome != null && pAway != null && pHome + pAway > 0 ? (pHome / (pHome + pAway)) * 100 : null;
   const rowDir = mirror ? "row-reverse" : "row";
+  const when = date ? (city ? `${date} · ${city}` : date) : proj ? "Projected" : "";
   const row = (code, p, isWin, isLose) => (
     <div style={{
       display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8,
@@ -271,11 +307,9 @@ function MatchCard({ home, away, status, winner, score, date, venue, pHome, pAwa
   );
   return (
     <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 11, padding: 8 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 4px 6px", flexDirection: rowDir }}>
-        <span style={{ fontFamily: FM, fontSize: 9.5, letterSpacing: 0.6, textTransform: "uppercase", color: C.faint }}>
-          {proj ? "Projected" : date}
-        </span>
-        <StatePill status={status} label={proj ? date : venue} />
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 6, padding: "0 4px 6px", flexDirection: rowDir }}>
+        <span style={{ fontFamily: FM, fontSize: 9.5, letterSpacing: 0.5, textTransform: "uppercase", color: C.faint, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{when}</span>
+        {(status === "done" || status === "live") && <StatePill status={status} />}
       </div>
       {row(home, pHome, winner === home, winner && winner !== home)}
       {row(away, pAway, winner === away, winner && winner !== away)}
@@ -284,8 +318,11 @@ function MatchCard({ home, away, status, winner, score, date, venue, pHome, pAwa
           <div style={{ width: `${microW}%`, height: "100%", background: C.coral, borderRadius: 3, transition: "width .6s cubic-bezier(.2,.7,.2,1)" }} />
         </div>
       )}
-      {score && (
-        <div style={{ textAlign: mirror ? "left" : "right", fontFamily: FM, fontSize: 10, color: C.faint, padding: "3px 7px 0" }}>{score}</div>
+      {(stadium || score) && (
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 6, padding: "4px 7px 0", flexDirection: rowDir }}>
+          <span style={{ fontFamily: FM, fontSize: 9.5, color: C.faint, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", flex: 1, minWidth: 0, textAlign: mirror ? "right" : "left" }}>{stadium || ""}</span>
+          {score && <span style={{ fontFamily: FM, fontSize: 10, color: C.muted, whiteSpace: "nowrap" }}>{score}</span>}
+        </div>
       )}
     </div>
   );
@@ -305,11 +342,12 @@ function Bracket({ model, R32 }) {
   const r32Card = (slot, mirror) => {
     const m = bySlot[slot], d = slotDist[slot];
     return <MatchCard key={"s" + slot} home={m.home} away={m.away} status={m.status} winner={m.winner}
-      score={m.score} date={m.date} venue={m.venue} pHome={d[m.home]} pAway={d[m.away]} mirror={mirror} />;
+      score={m.score} date={m.date} city={m.venue} stadium={STADIUMS[m.venue]}
+      pHome={d[m.home]} pAway={d[m.away]} mirror={mirror} />;
   };
-  const r16Card = (i, mirror) => <MatchCard key={"r16" + i} {...projMatch(slotDist[R16_PAIRS[i][0]], slotDist[R16_PAIRS[i][1]])} mirror={mirror} />;
-  const qfCard = (i, mirror) => <MatchCard key={"qf" + i} {...projMatch(r16[QF_PAIRS[i][0]], r16[QF_PAIRS[i][1]])} mirror={mirror} />;
-  const sfCard = (i, mirror) => <MatchCard key={"sf" + i} {...projMatch(qf[SF_PAIRS[i][0]], qf[SF_PAIRS[i][1]])} mirror={mirror} />;
+  const r16Card = (i, mirror) => <MatchCard key={"r16" + i} {...projMatch(slotDist[R16_PAIRS[i][0]], slotDist[R16_PAIRS[i][1]])} {...SCHEDULE.r16[i]} mirror={mirror} />;
+  const qfCard = (i, mirror) => <MatchCard key={"qf" + i} {...projMatch(r16[QF_PAIRS[i][0]], r16[QF_PAIRS[i][1]])} {...SCHEDULE.qf[i]} mirror={mirror} />;
+  const sfCard = (i, mirror) => <MatchCard key={"sf" + i} {...projMatch(qf[SF_PAIRS[i][0]], qf[SF_PAIRS[i][1]])} {...SCHEDULE.sf[i]} mirror={mirror} />;
 
   const Col = ({ title, children, justify }) => (
     <div style={{ display: "flex", flexDirection: "column", minWidth: 190 }}>
@@ -338,7 +376,7 @@ function Bracket({ model, R32 }) {
           <Col title="Quarterfinals">{[0, 1].map((i) => qfCard(i, false))}</Col>
           <Col title="Semifinals">{sfCard(0, false)}</Col>
           <Col title="Final" justify="center">
-            <MatchCard {...projMatch(sf[0], sf[1])} />
+            <MatchCard {...projMatch(sf[0], sf[1])} {...SCHEDULE.final} />
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, background: "linear-gradient(160deg, rgba(244,192,78,0.12), transparent)", border: "1px solid #5a4a1e", borderRadius: 14, padding: "20px 14px", marginTop: 14 }}>
               <div style={{ fontFamily: FD, fontSize: 10, fontWeight: 700, letterSpacing: 1.6, textTransform: "uppercase", color: C.gold }}>Projected champion</div>
               <div style={{ fontSize: 40 }}>{flagFor(champ[0])}</div>
