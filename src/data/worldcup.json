@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-04T13:43:34.161Z",
+  "updated": "2026-07-04T17:18:24.414Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -83,9 +83,9 @@
       "score": "1–0"
     },
     "CAN|MAR": {
-      "status": "upcoming",
+      "status": "live",
       "winner": null,
-      "score": null
+      "score": "in progress"
     },
     "FRA|PAR": {
       "status": "upcoming",
