@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-03T23:40:57.358Z",
+  "updated": "2026-07-04T01:21:21.743Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -73,9 +73,9 @@
       "score": "1–1 (4–4 pens)"
     },
     "ARG|CPV": {
-      "status": "live",
-      "winner": null,
-      "score": "in progress"
+      "status": "done",
+      "winner": "ARG",
+      "score": "3–2"
     },
     "COL|GHA": {
       "status": "upcoming",
@@ -571,7 +571,7 @@
       "name": "Lionel Messi",
       "team": "ARG",
       "goals": 7,
-      "assists": 0
+      "assists": 1
     },
     {
       "name": "Kylian Mbappé",
