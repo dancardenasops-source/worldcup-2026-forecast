@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-04T01:21:21.743Z",
+  "updated": "2026-07-04T05:12:34.124Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -78,9 +78,9 @@
       "score": "3–2"
     },
     "COL|GHA": {
-      "status": "upcoming",
-      "winner": null,
-      "score": null
+      "status": "done",
+      "winner": "COL",
+      "score": "1–0"
     },
     "CAN|MAR": {
       "status": "upcoming",
