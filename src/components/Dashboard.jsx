@@ -117,26 +117,27 @@ const STADIUMS = {
    schedule). Indices align with R16_PAIRS / QF_PAIRS / SF_PAIRS above. */
 const SCHEDULE = {
   r16: [
-    { date: "Jul 4", city: "Houston", stadium: "NRG Stadium" },                 // P90
-    { date: "Jul 4", city: "Philadelphia", stadium: "Lincoln Financial Field" },// P89
-    { date: "Jul 6", city: "Arlington", stadium: "AT&T Stadium" },              // P93
-    { date: "Jul 6", city: "Seattle", stadium: "Lumen Field" },                 // P94
-    { date: "Jul 5", city: "East Rutherford", stadium: "MetLife Stadium" },     // P91
-    { date: "Jul 5", city: "Mexico City", stadium: "Estadio Azteca" },          // P92
-    { date: "Jul 7", city: "Atlanta", stadium: "Mercedes-Benz Stadium" },       // P95
-    { date: "Jul 7", city: "Vancouver", stadium: "BC Place" },                  // P96
+    { date: "Jul 4", time: "1:00 PM ET", city: "Houston", stadium: "NRG Stadium" },                  // P90
+    { date: "Jul 4", time: "5:00 PM ET", city: "Philadelphia", stadium: "Lincoln Financial Field" }, // P89
+    { date: "Jul 6", time: "3:00 PM ET", city: "Arlington", stadium: "AT&T Stadium" },               // P93
+    { date: "Jul 6", time: "8:00 PM ET", city: "Seattle", stadium: "Lumen Field" },                  // P94
+    { date: "Jul 5", time: "4:00 PM ET", city: "East Rutherford", stadium: "MetLife Stadium" },      // P91
+    { date: "Jul 5", time: "8:00 PM ET", city: "Mexico City", stadium: "Estadio Azteca" },           // P92
+    { date: "Jul 7", time: "12:00 PM ET", city: "Atlanta", stadium: "Mercedes-Benz Stadium" },       // P95
+    { date: "Jul 7", time: "4:00 PM ET", city: "Vancouver", stadium: "BC Place" },                   // P96
   ],
   qf: [
-    { date: "Jul 9", city: "Foxborough", stadium: "Gillette Stadium" },   // P97
-    { date: "Jul 10", city: "Inglewood", stadium: "SoFi Stadium" },       // P98
-    { date: "Jul 11", city: "Miami", stadium: "Hard Rock Stadium" },      // P99
-    { date: "Jul 11", city: "Kansas City", stadium: "Arrowhead Stadium" },// P100
+    { date: "Jul 9", time: "4:00 PM ET", city: "Foxborough", stadium: "Gillette Stadium" },   // P97
+    { date: "Jul 10", time: "3:00 PM ET", city: "Inglewood", stadium: "SoFi Stadium" },       // P98
+    { date: "Jul 11", time: "5:00 PM ET", city: "Miami", stadium: "Hard Rock Stadium" },      // P99
+    { date: "Jul 11", time: "9:00 PM ET", city: "Kansas City", stadium: "Arrowhead Stadium" },// P100
   ],
   sf: [
-    { date: "Jul 14", city: "Arlington", stadium: "AT&T Stadium" },       // P101
-    { date: "Jul 15", city: "Atlanta", stadium: "Mercedes-Benz Stadium" },// P102
+    { date: "Jul 14", time: "3:00 PM ET", city: "Arlington", stadium: "AT&T Stadium" },       // P101
+    { date: "Jul 15", time: "3:00 PM ET", city: "Atlanta", stadium: "Mercedes-Benz Stadium" },// P102
   ],
-  final: { date: "Jul 19", city: "East Rutherford", stadium: "MetLife Stadium" }, // P104
+  third: { date: "Jul 18", time: "5:00 PM ET", city: "Miami", stadium: "Hard Rock Stadium" },     // P103
+  final: { date: "Jul 19", time: "3:00 PM ET", city: "East Rutherford", stadium: "MetLife Stadium" }, // P104
 };
 
 /* ---- FINAL GROUP STANDINGS (A–L) -------------------------------------------- */
@@ -304,10 +305,12 @@ function SecHead({ title, children }) {
 }
 
 /* ---------- BRACKET ---------- */
-function MatchCard({ home, away, status, winner, score, date, city, stadium, pHome, pAway, proj, mirror }) {
+function MatchCard({ home, away, status, winner, score, date, time, city, stadium, pHome, pAway, proj, mirror }) {
   const microW = pHome != null && pAway != null && pHome + pAway > 0 ? (pHome / (pHome + pAway)) * 100 : null;
   const rowDir = mirror ? "row-reverse" : "row";
-  const when = date ? (city ? `${date} · ${city}` : date) : proj ? "Projected" : "";
+  const when = date ? [date, time].filter(Boolean).join(" · ") : proj ? "Projected" : "";
+  // Footer shows the stadium (plus city when there's room — i.e. no score yet).
+  const place = score ? (stadium || "") : [stadium, city].filter(Boolean).join(" · ");
   const row = (code, p, isWin, isLose) => (
     <div style={{
       display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8,
@@ -337,9 +340,9 @@ function MatchCard({ home, away, status, winner, score, date, city, stadium, pHo
           <div style={{ width: `${microW}%`, height: "100%", background: C.coral, borderRadius: 3, transition: "width .6s cubic-bezier(.2,.7,.2,1)" }} />
         </div>
       )}
-      {(stadium || score) && (
+      {(place || score) && (
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 6, padding: "4px 7px 0", flexDirection: rowDir }}>
-          <span style={{ fontFamily: FM, fontSize: 9.5, color: C.faint, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", flex: 1, minWidth: 0, textAlign: mirror ? "right" : "left" }}>{stadium || ""}</span>
+          <span style={{ fontFamily: FM, fontSize: 9.5, color: C.faint, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", flex: 1, minWidth: 0, textAlign: mirror ? "right" : "left" }}>{place}</span>
           {score && <span style={{ fontFamily: FM, fontSize: 10, color: C.muted, whiteSpace: "nowrap" }}>{score}</span>}
         </div>
       )}
@@ -381,6 +384,27 @@ function Bracket({ model, R32, results }) {
   const qfCard = (i, mirror) => nodeCard(r16[QF_PAIRS[i][0]], r16[QF_PAIRS[i][1]], SCHEDULE.qf[i], "qf" + i, mirror);
   const sfCard = (i, mirror) => nodeCard(qf[SF_PAIRS[i][0]], qf[SF_PAIRS[i][1]], SCHEDULE.sf[i], "sf" + i, mirror);
 
+  // Third-place playoff: the two losing semi-finalists (known only once both
+  // semis are played). nodeCard then shows the real result or a projection.
+  const semiLoser = (a, b) => {
+    const ca = certain(a), cb = certain(b);
+    if (!ca || !cb) return null;
+    const r = results[pairKey(ca, cb)];
+    return r && r.status === "done" && r.winner ? (r.winner === ca ? cb : ca) : null;
+  };
+  const thirdCard = () => {
+    const l1 = semiLoser(qf[SF_PAIRS[0][0]], qf[SF_PAIRS[0][1]]);
+    const l2 = semiLoser(qf[SF_PAIRS[1][0]], qf[SF_PAIRS[1][1]]);
+    if (l1 && l2) return nodeCard({ [l1]: 1 }, { [l2]: 1 }, SCHEDULE.third, "third", false);
+    return (
+      <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 11, padding: 8, opacity: 0.9 }}>
+        <div style={{ fontFamily: FM, fontSize: 9.5, letterSpacing: 0.5, textTransform: "uppercase", color: C.faint, padding: "0 4px 6px" }}>{SCHEDULE.third.date} · {SCHEDULE.third.time}</div>
+        <div style={{ textAlign: "center", color: C.faint, fontSize: 11, padding: "8px 0" }}>Losing semi-finalists</div>
+        <div style={{ fontFamily: FM, fontSize: 9.5, color: C.faint, padding: "0 7px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{SCHEDULE.third.stadium} · {SCHEDULE.third.city}</div>
+      </div>
+    );
+  };
+
   const Col = ({ title, children, justify }) => (
     <div style={{ display: "flex", flexDirection: "column", minWidth: 190 }}>
       <div style={{ fontFamily: FD, fontSize: 11, fontWeight: 700, color: C.faint, letterSpacing: 1.4, textTransform: "uppercase", textAlign: "center", marginBottom: 10 }}>{title}</div>
@@ -414,6 +438,10 @@ function Bracket({ model, R32, results }) {
               <div style={{ fontSize: 40 }}>{flagFor(champ[0])}</div>
               <div style={{ fontFamily: FD, fontWeight: 700, fontSize: 22, textTransform: "uppercase", letterSpacing: "-0.01em" }}>{nameFor(champ[0])}</div>
               <div style={{ fontFamily: FM, color: C.gold, fontSize: 14 }}>{certain(fin) ? "World Cup 2026 champion" : `${pct(champ[1])} to lift the trophy`}</div>
+            </div>
+            <div style={{ marginTop: 16 }}>
+              <div style={{ fontFamily: FD, fontSize: 10, fontWeight: 700, letterSpacing: 1.4, textTransform: "uppercase", color: C.faint, textAlign: "center", marginBottom: 6 }}>Third place</div>
+              {thirdCard()}
             </div>
           </Col>
           <Col title="Semifinals">{sfCard(1, true)}</Col>
