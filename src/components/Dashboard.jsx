@@ -177,11 +177,14 @@ const SCORERS_BASE = [
 ];
 const deriveScorers = (data) => (data?.scorers && data.scorers.length ? data.scorers : SCORERS_BASE);
 
-/* "Updated" label from an ISO timestamp; the snapshot date if we have none. */
+/* "Updated" label from an ISO timestamp; the snapshot date if we have none.
+   Formatted in UTC so server-render (build) and client-render agree — otherwise
+   the timezone difference causes a React hydration mismatch. */
 const fmtUpdated = (iso) =>
   iso
     ? new Date(iso).toLocaleString("en-US", {
-        month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZoneName: "short",
+        month: "short", day: "numeric", hour: "numeric", minute: "2-digit",
+        timeZone: "UTC", timeZoneName: "short",
       })
     : "Jun 29, 2026";
 
@@ -191,11 +194,14 @@ const fmtUpdated = (iso) =>
    results are locked (winner = 100%). All distributions are exact (analytic),
    so each round's probabilities sum to 100% across surviving teams.
    ============================================================================= */
+/* Safe strength lookup — an unknown code (e.g. an unexpected live winner) falls
+   back to a small weight instead of producing NaN probabilities. */
+const sOf = (c) => S[c] || 0.5;
 function matchDist(a, b) {
   const out = {};
   for (const ta in a) for (const tb in b) {
     const p = a[ta] * b[tb];
-    const pa = S[ta] / (S[ta] + S[tb]);
+    const pa = sOf(ta) / (sOf(ta) + sOf(tb));
     out[ta] = (out[ta] || 0) + p * pa;
     out[tb] = (out[tb] || 0) + p * (1 - pa);
   }
@@ -212,7 +218,7 @@ function buildModel(R32) {
   R32.forEach((m) => {
     if (m.winner) slotDist[m.slot] = { [m.winner]: 1 };
     else {
-      const ph = S[m.home] / (S[m.home] + S[m.away]);
+      const ph = sOf(m.home) / (sOf(m.home) + sOf(m.away));
       slotDist[m.slot] = { [m.home]: ph, [m.away]: 1 - ph };
     }
   });
@@ -335,15 +341,18 @@ function Bracket({ model, R32 }) {
   // than their chance of reaching the slot — which is 100% once a team has clinched.
   const projMatch = (nodeA, nodeB) => {
     const a = top(nodeA), b = top(nodeB);
-    const pa = S[a[0]] / (S[a[0]] + S[b[0]]);
+    const pa = sOf(a[0]) / (sOf(a[0]) + sOf(b[0]));
     return { home: a[0], away: b[0], pHome: pa, pAway: 1 - pa, proj: true, status: "upcoming" };
   };
   const bySlot = Object.fromEntries(R32.map((m) => [m.slot, m]));
   const r32Card = (slot, mirror) => {
     const m = bySlot[slot], d = slotDist[slot];
+    // Finished but no winner in the feed (e.g. a shootout mid-ingestion): don't
+    // show strength-based %s — they'd read as predictions on a decided game.
+    const unresolved = m.status === "done" && !m.winner;
     return <MatchCard key={"s" + slot} home={m.home} away={m.away} status={m.status} winner={m.winner}
       score={m.score} date={m.date} city={m.venue} stadium={STADIUMS[m.venue]}
-      pHome={d[m.home]} pAway={d[m.away]} mirror={mirror} />;
+      pHome={unresolved ? null : d[m.home]} pAway={unresolved ? null : d[m.away]} mirror={mirror} />;
   };
   const r16Card = (i, mirror) => <MatchCard key={"r16" + i} {...projMatch(slotDist[R16_PAIRS[i][0]], slotDist[R16_PAIRS[i][1]])} {...SCHEDULE.r16[i]} mirror={mirror} />;
   const qfCard = (i, mirror) => <MatchCard key={"qf" + i} {...projMatch(r16[QF_PAIRS[i][0]], r16[QF_PAIRS[i][1]])} {...SCHEDULE.qf[i]} mirror={mirror} />;
@@ -487,7 +496,7 @@ function Groups({ GROUPS }) {
         reached the knockout stage.
       </SecHead>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 14 }}>
-        {Object.entries(GROUPS).map(([g, rows]) => (
+        {Object.entries(GROUPS).sort((a, b) => a[0].localeCompare(b[0])).map(([g, rows]) => (
           <div key={g} style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 12, padding: "13px 15px" }}>
             <div style={{ fontFamily: FD, fontSize: 13, fontWeight: 700, letterSpacing: 1.6, textTransform: "uppercase", color: C.coral, marginBottom: 8 }}>Group {g}</div>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5 }}>
@@ -607,14 +616,18 @@ export default function Dashboard() {
   // current data on any failure, so the page never breaks.
   const refresh = useCallback(async () => {
     setStatus("loading");
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 10000); // don't spin forever if the network hangs
     try {
-      const res = await fetch(`${DATA_URL}?t=${Date.now()}`, { cache: "no-store" });
+      const res = await fetch(`${DATA_URL}?t=${Date.now()}`, { cache: "no-store", signal: ctrl.signal });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
       if (json && json.results) { setData(json); setStatus("ok"); }
       else throw new Error("bad payload");
     } catch (e) {
       setStatus("error");
+    } finally {
+      clearTimeout(timer);
     }
   }, []);
   useEffect(() => { refresh(); }, [refresh]);

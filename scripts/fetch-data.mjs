@@ -107,12 +107,17 @@ function winnerCode(m) {
 /* ---- knockout results, keyed by sorted team-pair --------------------------- */
 function buildResults(matches) {
   const knockout = new Set(["LAST_32", "LAST_16", "QUARTER_FINALS", "SEMI_FINALS", "FINAL", "THIRD_PLACE"]);
+  const knownR32 = new Set(R32_PAIRS.map(([h, a]) => pairKey(h, a)));
   const results = {};
   for (const m of matches) {
     if (!knockout.has(m.stage)) continue;
     const h = codeOf(m.homeTeam), a = codeOf(m.awayTeam);
     if (!h || !a) continue;
     const key = pairKey(h, a);
+    // A LAST_32 pair that doesn't match the dashboard's fixtures means a code
+    // mismatch — the result would silently never appear on the site. Surface it.
+    if (m.stage === "LAST_32" && !knownR32.has(key))
+      console.warn(`  R32 pair not in dashboard bracket (code mismatch?): ${key}`);
     let status = STATUS(m.status);
     let winner = winnerCode(m);
     let score = m.status === "FINISHED" ? scoreString(m.score)
