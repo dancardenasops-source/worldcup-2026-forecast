@@ -666,15 +666,15 @@ export default function Dashboard() {
 
   // Pull the latest committed data from GitHub (cache-busted). Falls back to the
   // current data on any failure, so the page never breaks.
-  const refresh = useCallback(async () => {
-    setStatus("loading");
+  const refresh = useCallback(async (silent = false) => {
+    if (!silent) setStatus("loading");
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 10000); // don't spin forever if the network hangs
     try {
       const res = await fetch(`${DATA_URL}?t=${Date.now()}`, { cache: "no-store", signal: ctrl.signal });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
-      if (json && json.results) { setData(json); setStatus("ok"); }
+      if (json && json.results) { setData(json); setStatus(silent ? "idle" : "ok"); }
       else throw new Error("bad payload");
     } catch (e) {
       setStatus("error");
@@ -682,11 +682,26 @@ export default function Dashboard() {
       clearTimeout(timer);
     }
   }, []);
-  useEffect(() => { refresh(); }, [refresh]);
+  // Refresh on mount, on tab focus, and every 60s while visible — so live scores
+  // update on their own. Interval/focus refreshes are silent (no button flicker).
+  useEffect(() => {
+    refresh();
+    const id = setInterval(() => { if (document.visibilityState === "visible") refresh(true); }, 60000);
+    const onFocus = () => refresh(true);
+    window.addEventListener("focus", onFocus);
+    return () => { clearInterval(id); window.removeEventListener("focus", onFocus); };
+  }, [refresh]);
+  // Fade the "Updated ✓" confirmation back to the idle button after a manual refresh.
+  useEffect(() => {
+    if (status !== "ok") return;
+    const t = setTimeout(() => setStatus("idle"), 2500);
+    return () => clearTimeout(t);
+  }, [status]);
 
   const fav = model.top(model.champion);
   const played = R32.filter((m) => m.status === "done").length;
-  const live = R32.find((m) => m.status === "live");
+  const liveKey = Object.keys(results).find((k) => results[k]?.status === "live");
+  const live = liveKey ? liveKey.split("|") : null; // [codeA, codeB] of a match in progress
   const nextUp = R32.find((m) => m.status === "upcoming");
   const updatedLabel = fmtUpdated(data?.updated);
 
@@ -728,13 +743,18 @@ export default function Dashboard() {
             <button className="wc-tab" onClick={() => setMethodOpen(true)} style={{ color: C.faint }}>ⓘ Method</button>
           </nav>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {live && (
+              <span style={{ ...pillBase, color: C.coral, border: `1px solid ${C.coralDeep}` }}>
+                <span className="wc-pulse" style={{ width: 6, height: 6, borderRadius: "50%", background: C.coral }} />Live
+              </span>
+            )}
             <span style={{ fontFamily: FM, fontSize: 11, color: status === "error" ? C.coral : C.faint, whiteSpace: "nowrap" }}>
               {status === "error" ? "FEED OFFLINE" : `UPD ${updatedLabel.toUpperCase()}`}
             </span>
-            <button className="wc-tab" onClick={refresh} disabled={status === "loading"}
-              style={{ display: "inline-flex", alignItems: "center", gap: 6, color: C.cyan, border: `1px solid ${C.line}` }}>
+            <button className="wc-tab" onClick={() => refresh()} disabled={status === "loading"}
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, color: status === "ok" ? C.good : C.cyan, border: `1px solid ${C.line}` }}>
               <span className={status === "loading" ? "wc-spin" : undefined} style={{ display: "inline-block", fontSize: 14, lineHeight: 1 }}>↻</span>
-              {status === "loading" ? "Updating" : "Refresh"}
+              {status === "loading" ? "Updating" : status === "ok" ? "Updated ✓" : "Refresh"}
             </button>
           </div>
         </div>
@@ -760,7 +780,7 @@ export default function Dashboard() {
               {[
                 ["Stage", "Round of 32"],
                 ["Played", `${played} / 16`],
-                [live ? "Live now" : "Next kickoff", live ? `${nameFor(live.home)}–${nameFor(live.away)}` : nextUp ? `${nameFor(nextUp.home)}–${nameFor(nextUp.away)} · ${nextUp.date}` : "—"],
+                [live ? "Live now" : "Next kickoff", live ? `${nameFor(live[0])}–${nameFor(live[1])}` : nextUp ? `${nameFor(nextUp.home)}–${nameFor(nextUp.away)} · ${nextUp.date}` : "—"],
               ].map(([k, v]) => (
                 <div key={k}>
                   <div style={{ fontFamily: FM, fontSize: 11, letterSpacing: 0.8, textTransform: "uppercase", color: C.faint }}>{k}</div>

@@ -120,8 +120,12 @@ function buildResults(matches) {
       console.warn(`  R32 pair not in dashboard bracket (code mismatch?): ${key}`);
     let status = STATUS(m.status);
     let winner = winnerCode(m);
-    let score = m.status === "FINISHED" ? scoreString(m.score)
-      : (m.status === "IN_PLAY" || m.status === "PAUSED") ? "in progress" : null;
+    let score;
+    if (m.status === "FINISHED") score = scoreString(m.score);
+    else if (m.status === "IN_PLAY" || m.status === "PAUSED") {
+      const ft = m.score?.fullTime; // running score during the match
+      score = ft && ft.home != null ? `${ft.home}–${ft.away}` : "LIVE";
+    } else score = null;
     // Fill in a known result the feed couldn't resolve.
     const ov = RESULT_OVERRIDES[key];
     if (ov && !winner) { winner = ov.winner; if (ov.score) score = ov.score; status = "done"; }
