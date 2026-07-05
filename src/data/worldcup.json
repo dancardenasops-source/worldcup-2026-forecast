@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-05T21:40:08.157Z",
+  "updated": "2026-07-05T22:41:30.802Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -93,9 +93,9 @@
       "score": "0–1"
     },
     "BRA|NOR": {
-      "status": "upcoming",
-      "winner": null,
-      "score": null
+      "status": "done",
+      "winner": "NOR",
+      "score": "1–2"
     },
     "ENG|MEX": {
       "status": "upcoming",
@@ -594,15 +594,15 @@
       "assists": 2
     },
     {
-      "name": "Lionel Messi",
-      "team": "ARG",
+      "name": "Erling Haaland",
+      "team": "NOR",
       "goals": 7,
       "assists": 0
     },
     {
-      "name": "Erling Haaland",
-      "team": "NOR",
-      "goals": 5,
+      "name": "Lionel Messi",
+      "team": "ARG",
+      "goals": 7,
       "assists": 0
     },
     {
