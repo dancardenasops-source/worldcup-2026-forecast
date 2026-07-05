@@ -213,7 +213,20 @@ const merge = (nodes) => {
   return out;
 };
 
-function buildModel(R32) {
+/* A degenerate distribution {X:1} means the match is decided; returns X, else null. */
+const certain = (d) => { const k = Object.keys(d); return k.length === 1 ? k[0] : null; };
+
+function buildModel(R32, results) {
+  // Once both participants of a node are known and the feed has a result for
+  // them, lock the node to the actual winner; otherwise project with the model.
+  const resolve = (a, b) => {
+    const ca = certain(a), cb = certain(b);
+    if (ca && cb) {
+      const r = results[pairKey(ca, cb)];
+      if (r && r.winner) return { [r.winner]: 1 };
+    }
+    return matchDist(a, b);
+  };
   const slotDist = {};
   R32.forEach((m) => {
     if (m.winner) slotDist[m.slot] = { [m.winner]: 1 };
@@ -222,10 +235,10 @@ function buildModel(R32) {
       slotDist[m.slot] = { [m.home]: ph, [m.away]: 1 - ph };
     }
   });
-  const r16 = R16_PAIRS.map(([x, y]) => matchDist(slotDist[x], slotDist[y]));
-  const qf = QF_PAIRS.map(([x, y]) => matchDist(r16[x], r16[y]));
-  const sf = SF_PAIRS.map(([x, y]) => matchDist(qf[x], qf[y]));
-  const fin = matchDist(sf[0], sf[1]);
+  const r16 = R16_PAIRS.map(([x, y]) => resolve(slotDist[x], slotDist[y]));
+  const qf = QF_PAIRS.map(([x, y]) => resolve(r16[x], r16[y]));
+  const sf = SF_PAIRS.map(([x, y]) => resolve(qf[x], qf[y]));
+  const fin = resolve(sf[0], sf[1]);
 
   const reachR16 = merge(R32.map((m) => slotDist[m.slot]));
   const reachQF = merge(r16);
@@ -334,15 +347,25 @@ function MatchCard({ home, away, status, winner, score, date, city, stadium, pHo
   );
 }
 
-function Bracket({ model, R32 }) {
+function Bracket({ model, R32, results }) {
   const { slotDist, r16, qf, sf, fin, top } = model;
-  // Projected card: show the two most-likely occupants and their HEAD-TO-HEAD win
-  // probability (so it reads like the real-match cards and sums to 100%), rather
-  // than their chance of reaching the slot — which is 100% once a team has clinched.
-  const projMatch = (nodeA, nodeB) => {
-    const a = top(nodeA), b = top(nodeB);
-    const pa = sOf(a[0]) / (sOf(a[0]) + sOf(b[0]));
-    return { home: a[0], away: b[0], pHome: pa, pAway: 1 - pa, proj: true, status: "upcoming" };
+  // A later-round card: if both participants are known and the match has been
+  // played, show the real result (winner + score); otherwise the projected
+  // head-to-head between the two most-likely occupants.
+  const nodeCard = (a, b, sched, key, mirror) => {
+    const ca = certain(a), cb = certain(b);
+    if (ca && cb) {
+      const r = results[pairKey(ca, cb)];
+      if (r && (r.status === "done" || r.status === "live")) {
+        return <MatchCard key={key} home={ca} away={cb} status={r.status} winner={r.winner || null}
+          score={r.score} {...sched} pHome={r.winner === ca ? 1 : null} pAway={r.winner === cb ? 1 : null} mirror={mirror} />;
+      }
+      const p = sOf(ca) / (sOf(ca) + sOf(cb));
+      return <MatchCard key={key} home={ca} away={cb} pHome={p} pAway={1 - p} proj status="upcoming" {...sched} mirror={mirror} />;
+    }
+    const a2 = top(a), b2 = top(b);
+    const pp = sOf(a2[0]) / (sOf(a2[0]) + sOf(b2[0]));
+    return <MatchCard key={key} home={a2[0]} away={b2[0]} pHome={pp} pAway={1 - pp} proj status="upcoming" {...sched} mirror={mirror} />;
   };
   const bySlot = Object.fromEntries(R32.map((m) => [m.slot, m]));
   const r32Card = (slot, mirror) => {
@@ -354,9 +377,9 @@ function Bracket({ model, R32 }) {
       score={m.score} date={m.date} city={m.venue} stadium={STADIUMS[m.venue]}
       pHome={unresolved ? null : d[m.home]} pAway={unresolved ? null : d[m.away]} mirror={mirror} />;
   };
-  const r16Card = (i, mirror) => <MatchCard key={"r16" + i} {...projMatch(slotDist[R16_PAIRS[i][0]], slotDist[R16_PAIRS[i][1]])} {...SCHEDULE.r16[i]} mirror={mirror} />;
-  const qfCard = (i, mirror) => <MatchCard key={"qf" + i} {...projMatch(r16[QF_PAIRS[i][0]], r16[QF_PAIRS[i][1]])} {...SCHEDULE.qf[i]} mirror={mirror} />;
-  const sfCard = (i, mirror) => <MatchCard key={"sf" + i} {...projMatch(qf[SF_PAIRS[i][0]], qf[SF_PAIRS[i][1]])} {...SCHEDULE.sf[i]} mirror={mirror} />;
+  const r16Card = (i, mirror) => nodeCard(slotDist[R16_PAIRS[i][0]], slotDist[R16_PAIRS[i][1]], SCHEDULE.r16[i], "r16" + i, mirror);
+  const qfCard = (i, mirror) => nodeCard(r16[QF_PAIRS[i][0]], r16[QF_PAIRS[i][1]], SCHEDULE.qf[i], "qf" + i, mirror);
+  const sfCard = (i, mirror) => nodeCard(qf[SF_PAIRS[i][0]], qf[SF_PAIRS[i][1]], SCHEDULE.sf[i], "sf" + i, mirror);
 
   const Col = ({ title, children, justify }) => (
     <div style={{ display: "flex", flexDirection: "column", minWidth: 190 }}>
@@ -385,12 +408,12 @@ function Bracket({ model, R32 }) {
           <Col title="Quarterfinals">{[0, 1].map((i) => qfCard(i, false))}</Col>
           <Col title="Semifinals">{sfCard(0, false)}</Col>
           <Col title="Final" justify="center">
-            <MatchCard {...projMatch(sf[0], sf[1])} {...SCHEDULE.final} />
+            {nodeCard(sf[0], sf[1], SCHEDULE.final, "final", false)}
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, background: "linear-gradient(160deg, rgba(244,192,78,0.12), transparent)", border: "1px solid #5a4a1e", borderRadius: 14, padding: "20px 14px", marginTop: 14 }}>
-              <div style={{ fontFamily: FD, fontSize: 10, fontWeight: 700, letterSpacing: 1.6, textTransform: "uppercase", color: C.gold }}>Projected champion</div>
+              <div style={{ fontFamily: FD, fontSize: 10, fontWeight: 700, letterSpacing: 1.6, textTransform: "uppercase", color: C.gold }}>{certain(fin) ? "Champion" : "Projected champion"}</div>
               <div style={{ fontSize: 40 }}>{flagFor(champ[0])}</div>
               <div style={{ fontFamily: FD, fontWeight: 700, fontSize: 22, textTransform: "uppercase", letterSpacing: "-0.01em" }}>{nameFor(champ[0])}</div>
-              <div style={{ fontFamily: FM, color: C.gold, fontSize: 14 }}>{pct(champ[1])} to lift the trophy</div>
+              <div style={{ fontFamily: FM, color: C.gold, fontSize: 14 }}>{certain(fin) ? "World Cup 2026 champion" : `${pct(champ[1])} to lift the trophy`}</div>
             </div>
           </Col>
           <Col title="Semifinals">{sfCard(1, true)}</Col>
@@ -607,9 +630,10 @@ export default function Dashboard() {
   const [methodOpen, setMethodOpen] = useState(false);
 
   // Everything downstream recomputes whenever `data` changes.
+  const results = data?.results || {};
   const { R32, GROUPS, SCORERS, model } = useMemo(() => {
     const r32 = deriveR32(data);
-    return { R32: r32, GROUPS: deriveGroups(data), SCORERS: deriveScorers(data), model: buildModel(r32) };
+    return { R32: r32, GROUPS: deriveGroups(data), SCORERS: deriveScorers(data), model: buildModel(r32, data?.results || {}) };
   }, [data]);
 
   // Pull the latest committed data from GitHub (cache-busted). Falls back to the
@@ -734,7 +758,7 @@ export default function Dashboard() {
 
       {/* BODY */}
       <div style={{ maxWidth: 1240, margin: "0 auto", padding: "40px 22px 60px" }}>
-        {tab === "bracket" && <Bracket model={model} R32={R32} />}
+        {tab === "bracket" && <Bracket model={model} R32={R32} results={results} />}
         {tab === "forecast" && <Forecast model={model} />}
         {tab === "groups" && <Groups GROUPS={GROUPS} />}
         {tab === "leaders" && <Leaders SCORERS={SCORERS} />}

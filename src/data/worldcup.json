@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-04T14:39:06.319Z",
+  "updated": "2026-07-05T03:48:44.790Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -83,14 +83,14 @@
       "score": "1–0"
     },
     "CAN|MAR": {
-      "status": "upcoming",
-      "winner": null,
-      "score": null
+      "status": "done",
+      "winner": "MAR",
+      "score": "0–3"
     },
     "FRA|PAR": {
-      "status": "upcoming",
-      "winner": null,
-      "score": null
+      "status": "done",
+      "winner": "FRA",
+      "score": "0–1"
     },
     "BRA|NOR": {
       "status": "upcoming",
@@ -583,16 +583,16 @@
   },
   "scorers": [
     {
+      "name": "Kylian Mbappé",
+      "team": "FRA",
+      "goals": 7,
+      "assists": 2
+    },
+    {
       "name": "Lionel Messi",
       "team": "ARG",
       "goals": 7,
       "assists": 0
-    },
-    {
-      "name": "Kylian Mbappé",
-      "team": "FRA",
-      "goals": 6,
-      "assists": 2
     },
     {
       "name": "Erling Haaland",
