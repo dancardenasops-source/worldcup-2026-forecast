@@ -8,7 +8,15 @@
       "Bash(git init *)",
       "Bash(git add *)",
       "Bash(git -c commit.gpgsign=false commit -m ' *)",
-      "Bash(gh repo *)"
+      "Bash(gh repo *)",
+      "Bash(git merge *)",
+      "Bash(node -e \"const d=JSON.parse\\(require\\('fs'\\).readFileSync\\(0\\)\\);console.log\\('updated:',d.updated\\);console.log\\('finished results:',Object.values\\(d.results\\).filter\\(v=>v.status!=='upcoming'\\).length\\)\")",
+      "Bash(node -e \"const d=JSON.parse\\(require\\('fs'\\).readFileSync\\(0\\)\\);const ko=d.matches.filter\\(m=>m.stage&&m.stage.startsWith\\('LAST'\\)||['QUARTER_FINALS','SEMI_FINALS','FINAL','THIRD_PLACE'].includes\\(m.stage\\)\\);console.log\\('knockout finished:',ko.filter\\(m=>m.status==='FINISHED'\\).length\\)\")",
+      "Bash(curl -s --max-time 25 -H \"X-Auth-Token: cc25ba8ad92640afa4c1b7fb2481df06\" \"https://api.football-data.org/v4/competitions/WC/matches\")",
+      "Bash(node -e \"const d=JSON.parse\\(require\\('fs'\\).readFileSync\\('/tmp/wc.json'\\)\\);const ko=d.matches.filter\\(m=>['LAST_16','QUARTER_FINALS','SEMI_FINALS','FINAL','THIRD_PLACE'].includes\\(m.stage\\)\\);console.log\\('R16+ statuses:'\\);const by={};ko.forEach\\(m=>by[m.status]=\\(by[m.status]||0\\)+1\\);console.log\\(JSON.stringify\\(by\\)\\);console.log\\('live/in-play:'\\);ko.filter\\(m=>['IN_PLAY','PAUSED'].includes\\(m.status\\)\\).forEach\\(m=>console.log\\(' LIVE',m.homeTeam.tla,'v',m.awayTeam.tla\\)\\);console.log\\('recent R16 finished:'\\);ko.filter\\(m=>m.stage==='LAST_16'&&m.status==='FINISHED'\\).forEach\\(m=>{const s=m.score;const w=s.winner==='HOME_TEAM'?m.homeTeam.tla:s.winner==='AWAY_TEAM'?m.awayTeam.tla:'?';console.log\\(' ',m.homeTeam.tla,'v',m.awayTeam.tla,'->',w\\)}\\);\")",
+      "Bash(node -e ' *)",
+      "Bash(curl -s --max-time 20 \"https://raw.githubusercontent.com/dancardenasops-source/worldcup-2026-forecast/main/src/data/worldcup.json?t=$\\(date +%s\\)\")",
+      "Bash(node -e \"let s='';process.stdin.on\\('data',c=>s+=c\\);process.stdin.on\\('end',\\(\\)=>{const d=JSON.parse\\(s\\);console.log\\('updated:',d.updated\\);const e=Object.entries\\(d.results\\);console.log\\('live:',e.filter\\(\\([k,v]\\)=>v.status==='live'\\).map\\(\\([k,v]\\)=>k+' '+\\(v.score||''\\)\\).join\\(', '\\)||'none'\\);console.log\\('done:',e.filter\\(\\([k,v]\\)=>v.status==='done'\\).length,'| upcoming:',e.filter\\(\\([k,v]\\)=>v.status==='upcoming'\\).length\\);}\\)\")"
     ]
   }
 }

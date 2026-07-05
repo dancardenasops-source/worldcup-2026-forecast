@@ -81,7 +81,7 @@ export default function BroadcastDashboard() {
           {NAV.map(([id, label], i) => <a key={id} href={`#${id}`} aria-current={i === 0 ? "true" : undefined}>{label}</a>)}
         </nav>
         <div className="bc-side-foot">
-          <a className="bc-dl" href="https://github.com/dancardenasops-source/worldcup-2026-forecast" target="_blank" rel="noreferrer" style={{ textDecoration: "none", display: "block", textAlign: "center" }}>View source</a>
+          <div className="bc-caps" style={{ fontSize: 10, lineHeight: 1.5 }}>Model estimates, not predictions. Sources: FIFA, football-data.org.</div>
         </div>
       </aside>
 
