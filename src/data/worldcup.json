@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-05T14:13:08.820Z",
+  "updated": "2026-07-05T20:36:43.511Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -93,9 +93,9 @@
       "score": "0–1"
     },
     "BRA|NOR": {
-      "status": "upcoming",
+      "status": "live",
       "winner": null,
-      "score": null
+      "score": "0–0"
     },
     "ENG|MEX": {
       "status": "upcoming",
