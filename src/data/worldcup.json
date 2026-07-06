@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-06T06:43:15.234Z",
+  "updated": "2026-07-06T21:11:50.530Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -103,9 +103,9 @@
       "score": "2–3"
     },
     "ESP|POR": {
-      "status": "upcoming",
-      "winner": null,
-      "score": null
+      "status": "done",
+      "winner": "ESP",
+      "score": "0–1"
     },
     "BEL|USA": {
       "status": "upcoming",
