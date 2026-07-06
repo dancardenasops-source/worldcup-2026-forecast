@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-05T22:41:30.802Z",
+  "updated": "2026-07-06T01:55:44.070Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -98,9 +98,9 @@
       "score": "1–2"
     },
     "ENG|MEX": {
-      "status": "upcoming",
-      "winner": null,
-      "score": null
+      "status": "live",
+      "winner": "ENG",
+      "score": "1–2"
     },
     "ESP|POR": {
       "status": "upcoming",
@@ -609,7 +609,13 @@
       "name": "Harry Kane",
       "team": "ENG",
       "goals": 5,
-      "assists": 0
+      "assists": 1
+    },
+    {
+      "name": "Julián Quiñones",
+      "team": "MEX",
+      "goals": 4,
+      "assists": 1
     },
     {
       "name": "Vinicius Junior",
@@ -618,20 +624,14 @@
       "assists": 1
     },
     {
-      "name": "Mikel Oyarzabal",
-      "team": "ESP",
+      "name": "Jude Bellingham",
+      "team": "ENG",
       "goals": 4,
       "assists": 1
     },
     {
-      "name": "Ousmane Dembélé",
-      "team": "FRA",
-      "goals": 4,
-      "assists": 2
-    },
-    {
-      "name": "Ismaïla Sarr",
-      "team": "SEN",
+      "name": "Mikel Oyarzabal",
+      "team": "ESP",
       "goals": 4,
       "assists": 1
     }
