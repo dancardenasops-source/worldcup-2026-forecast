@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-06T01:55:44.070Z",
+  "updated": "2026-07-06T06:43:15.234Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -98,9 +98,9 @@
       "score": "1–2"
     },
     "ENG|MEX": {
-      "status": "live",
+      "status": "done",
       "winner": "ENG",
-      "score": "1–2"
+      "score": "2–3"
     },
     "ESP|POR": {
       "status": "upcoming",
@@ -123,6 +123,11 @@
       "score": null
     },
     "FRA|MAR": {
+      "status": "upcoming",
+      "winner": null,
+      "score": null
+    },
+    "ENG|NOR": {
       "status": "upcoming",
       "winner": null,
       "score": null
@@ -608,7 +613,7 @@
     {
       "name": "Harry Kane",
       "team": "ENG",
-      "goals": 5,
+      "goals": 6,
       "assists": 1
     },
     {
