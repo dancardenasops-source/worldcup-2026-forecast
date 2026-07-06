@@ -191,6 +191,17 @@ table.bc-table tbody tr + tr td { border-top: 1px solid var(--track); }
 
 .bc-footer { border-top: 1px solid var(--line); padding: 22px 20px 60px; text-align: center; color: var(--text-muted); font-size: 12px; line-height: 1.6; max-width: 1440px; margin: 0 auto; }
 
+/* ---- methodology modal ---- */
+.bc-modal { position: fixed; inset: 0; background: rgba(8, 10, 16, 0.74); z-index: 60; display: flex; justify-content: center; align-items: flex-start; padding: 16px; overflow-y: auto; }
+.bc-modal-card { max-width: 620px; width: 100%; margin-top: 48px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 22px; }
+.bc-modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.bc-modal-head h2 { font-family: var(--font-display); font-weight: 700; font-size: 20px; text-transform: uppercase; margin: 0; }
+.bc-modal-x { background: var(--surface-2); border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 6px 12px; cursor: pointer; font-family: var(--font-mono); font-size: 12px; }
+.bc-modal-x:hover { border-color: var(--coral); }
+.bc-modal-item { margin-bottom: 14px; }
+.bc-modal-item .t { font-size: 13px; font-weight: 700; color: var(--gold); margin-bottom: 4px; }
+.bc-modal-item .b { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
 /* ---- responsive ---- */
 @media (max-width: 860px) {
   .bc-grid2 { grid-template-columns: 1fr; }

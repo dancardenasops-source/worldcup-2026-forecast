@@ -6,12 +6,14 @@ import Bracket from "./Bracket.jsx";
 import Forecast from "./Forecast.jsx";
 import Groups from "./Groups.jsx";
 import GoldenBoot from "./GoldenBoot.jsx";
+import Methodology from "./Methodology.jsx";
 
 const NAV = [["bracket", "Bracket"], ["forecast", "Forecast"], ["groups", "Groups"], ["leaders", "Leaders"]];
 
 export default function BroadcastDashboard() {
   const [data, setData] = useState(LIVE);
   const [status, setStatus] = useState("idle"); // idle | loading | ok | error
+  const [methodOpen, setMethodOpen] = useState(false);
 
   const results = data?.results || {};
   const { R32, GROUPS, SCORERS, model } = useMemo(() => {
@@ -60,6 +62,7 @@ export default function BroadcastDashboard() {
           <span className="bc-brand">MUNDIAL<b>ANALYTICS</b></span>
           <nav className="bc-topnav" aria-label="Sections">
             {NAV.map(([id, label]) => <a key={id} href={`#${id}`} className="bc-tab">{label}</a>)}
+            <button className="bc-tab" onClick={() => setMethodOpen(true)}>ⓘ Methodology</button>
           </nav>
         </div>
         <div className="bc-tools">
@@ -134,6 +137,8 @@ export default function BroadcastDashboard() {
           Title and advancement figures are model estimates from a de-vigged sportsbook consensus, not predictions.
         </footer>
       </main>
+
+      {methodOpen && <Methodology onClose={() => setMethodOpen(false)} />}
     </div>
   );
 }
