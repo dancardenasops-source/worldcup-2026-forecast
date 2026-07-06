@@ -17,6 +17,8 @@
   --text-muted: #9AA3B2;
   --line: rgba(245, 246, 248, 0.09);
   --track: rgba(245, 246, 248, 0.06);
+  --raised: #10141d;      /* header band + sidebar */
+  --cell-ink: #0e1220;    /* text on bright heatmap/accent fills (both themes) */
 
   --font-display: "Oswald", system-ui, sans-serif;
   --font-body: "Inter", system-ui, sans-serif;
@@ -26,6 +28,23 @@
   --radius-lg: 1rem;
   --side-w: 240px;
   --top-h: 60px;
+}
+
+/* Light ("clear") theme: override the tokens; every component reads the vars. */
+.bc-app[data-theme="light"] {
+  --bg: #EEF1F6;
+  --surface: #FFFFFF;
+  --surface-2: #E7ECF3;
+  --raised: #FFFFFF;
+  --text: #161B24;
+  --text-muted: #5C6675;
+  --line: rgba(22, 27, 36, 0.14);
+  --track: rgba(22, 27, 36, 0.10);
+  --coral: #E24632;
+  --turquoise: #0FA99C;
+  --gold: #A87A12;
+  --purple: #7C3AED;
+  --lime: #4E8C0B;
 }
 
 * { box-sizing: border-box; }
@@ -83,7 +102,7 @@
 .bc-upd.err { color: var(--coral); }
 
 /* ---- shell ---- */
-.bc-side { position: fixed; left: 0; top: var(--top-h); width: var(--side-w); height: calc(100vh - var(--top-h)); background: color-mix(in srgb, var(--bg) 60%, #000); border-right: 1px solid var(--line); display: flex; flex-direction: column; padding: 16px 0; z-index: 30; }
+.bc-side { position: fixed; left: 0; top: var(--top-h); width: var(--side-w); height: calc(100vh - var(--top-h)); background: var(--raised); border-right: 1px solid var(--line); display: flex; flex-direction: column; padding: 16px 0; z-index: 30; }
 .bc-side-head { padding: 8px 20px 16px; border-bottom: 1px solid var(--line); }
 .bc-side-nav { display: flex; flex-direction: column; padding: 12px 10px; gap: 2px; flex: 1; }
 .bc-side-nav a { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 500; border-left: 2px solid transparent; }
@@ -98,7 +117,7 @@
 @media (max-width: 1279px) { .bc-side { display: none; } }
 
 /* ---- header band ---- */
-.bc-band { padding: 22px 20px; background: color-mix(in srgb, var(--bg) 70%, #000); border-bottom: 1px solid var(--line); }
+.bc-band { padding: 22px 20px; background: var(--raised); border-bottom: 1px solid var(--line); }
 .bc-band-in { max-width: 1440px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px; }
 .bc-band h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(28px, 4vw, 44px); line-height: 1; text-transform: uppercase; font-style: italic; margin: 8px 0 0; letter-spacing: -0.01em; }
 .bc-band .sub { color: var(--text-muted); font-size: 13px; margin-top: 6px; }

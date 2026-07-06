@@ -14,6 +14,16 @@ export default function BroadcastDashboard() {
   const [data, setData] = useState(LIVE);
   const [status, setStatus] = useState("idle"); // idle | loading | ok | error
   const [methodOpen, setMethodOpen] = useState(false);
+  const [theme, setTheme] = useState("dark"); // "dark" | "light"; matches SSR, then reads storage
+  useEffect(() => {
+    const saved = typeof localStorage !== "undefined" && localStorage.getItem("bc-theme");
+    if (saved === "light" || saved === "dark") setTheme(saved);
+  }, []);
+  const toggleTheme = () => setTheme((t) => {
+    const next = t === "dark" ? "light" : "dark";
+    try { localStorage.setItem("bc-theme", next); } catch {}
+    return next;
+  });
 
   const results = data?.results || {};
   const { R32, GROUPS, SCORERS, model } = useMemo(() => {
@@ -56,7 +66,7 @@ export default function BroadcastDashboard() {
   const updated = fmtUpdated(data?.updated);
 
   return (
-    <div className="bc-app">
+    <div className="bc-app" data-theme={theme}>
       <header className="bc-top">
         <div style={{ display: "flex", alignItems: "center", gap: 20, minWidth: 0 }}>
           <span className="bc-brand">MUNDIAL<b>ANALYTICS</b></span>
@@ -66,6 +76,9 @@ export default function BroadcastDashboard() {
           </nav>
         </div>
         <div className="bc-tools">
+          <button className="bc-refresh" onClick={toggleTheme} aria-label={theme === "dark" ? "Switch to light view" : "Switch to dark view"} title="Toggle light / dark view">
+            <span aria-hidden="true">{theme === "dark" ? "☀" : "☾"}</span>
+          </button>
           {live && <span className="bc-pill live"><span className="bc-dot pulse" />Live</span>}
           <span className={`bc-upd${status === "error" ? " err" : ""}`}>{status === "error" ? "Feed offline" : `Upd ${updated}`}</span>
           <button className={`bc-refresh${status === "ok" ? " ok" : ""}`} onClick={() => refresh()} disabled={status === "loading"} aria-label="Refresh data">

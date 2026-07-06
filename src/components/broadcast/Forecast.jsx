@@ -41,13 +41,13 @@ export default function Forecast({ model }) {
             </thead>
             <tbody>
               {rows.map((r) => {
-                const cell = (v, k) => <td key={k} style={{ background: tintCoral(v), color: v > 0.5 ? "var(--bg)" : "var(--text)" }}>{pct(v)}</td>;
+                const cell = (v, k) => <td key={k} style={{ background: tintCoral(v), color: v > 0.5 ? "var(--cell-ink)" : "var(--text)" }}>{pct(v)}</td>;
                 const cr = r.champ / maxChamp;
                 return (
                   <tr key={r.c}>
                     <td className="tm"><span style={{ marginRight: 7 }}>{flagFor(r.c)}</span>{nameFor(r.c)}</td>
                     {cell(r.r16, "a")}{cell(r.qf, "b")}{cell(r.sf, "c")}{cell(r.fin, "d")}
-                    <td style={{ background: tintGold(cr), color: cr > 0.5 ? "var(--bg)" : "var(--gold)", fontWeight: 600 }}>{pct(r.champ)}</td>
+                    <td style={{ background: tintGold(cr), color: cr > 0.5 ? "var(--cell-ink)" : "var(--gold)", fontWeight: 600 }}>{pct(r.champ)}</td>
                   </tr>
                 );
               })}
