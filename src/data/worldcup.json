@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-07T07:44:16.055Z",
+  "updated": "2026-07-07T18:04:14.365Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -113,9 +113,9 @@
       "score": "1–4"
     },
     "ARG|EGY": {
-      "status": "upcoming",
-      "winner": null,
-      "score": null
+      "status": "live",
+      "winner": "ARG",
+      "score": "3–2"
     },
     "COL|SUI": {
       "status": "upcoming",
@@ -598,6 +598,12 @@
   },
   "scorers": [
     {
+      "name": "Lionel Messi",
+      "team": "ARG",
+      "goals": 8,
+      "assists": 1
+    },
+    {
       "name": "Kylian Mbappé",
       "team": "FRA",
       "goals": 7,
@@ -606,12 +612,6 @@
     {
       "name": "Erling Haaland",
       "team": "NOR",
-      "goals": 7,
-      "assists": 0
-    },
-    {
-      "name": "Lionel Messi",
-      "team": "ARG",
       "goals": 7,
       "assists": 0
     },
