@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-07T23:41:30.291Z",
+  "updated": "2026-07-08T07:14:25.179Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -120,7 +120,7 @@
     "COL|SUI": {
       "status": "done",
       "winner": "SUI",
-      "score": "0–0 (3–3 pens)"
+      "score": "0–0 (4–3 pens)"
     },
     "FRA|MAR": {
       "status": "upcoming",
@@ -133,6 +133,11 @@
       "score": null
     },
     "ENG|NOR": {
+      "status": "upcoming",
+      "winner": null,
+      "score": null
+    },
+    "ARG|SUI": {
       "status": "upcoming",
       "winner": null,
       "score": null
