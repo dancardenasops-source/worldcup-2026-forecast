@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-09T20:11:25.225Z",
+  "updated": "2026-07-09T21:51:24.425Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -124,8 +124,8 @@
     },
     "FRA|MAR": {
       "status": "live",
-      "winner": null,
-      "score": "0–0"
+      "winner": "FRA",
+      "score": "2–0"
     },
     "BEL|ESP": {
       "status": "upcoming",
@@ -603,16 +603,16 @@
   },
   "scorers": [
     {
+      "name": "Kylian Mbappé",
+      "team": "FRA",
+      "goals": 8,
+      "assists": 2
+    },
+    {
       "name": "Lionel Messi",
       "team": "ARG",
       "goals": 8,
       "assists": 1
-    },
-    {
-      "name": "Kylian Mbappé",
-      "team": "FRA",
-      "goals": 7,
-      "assists": 2
     },
     {
       "name": "Erling Haaland",
@@ -625,6 +625,12 @@
       "team": "ENG",
       "goals": 6,
       "assists": 1
+    },
+    {
+      "name": "Ousmane Dembélé",
+      "team": "FRA",
+      "goals": 5,
+      "assists": 2
     },
     {
       "name": "Julián Quiñones",
@@ -641,12 +647,6 @@
     {
       "name": "Jude Bellingham",
       "team": "ENG",
-      "goals": 4,
-      "assists": 1
-    },
-    {
-      "name": "Mikel Oyarzabal",
-      "team": "ESP",
       "goals": 4,
       "assists": 1
     }
