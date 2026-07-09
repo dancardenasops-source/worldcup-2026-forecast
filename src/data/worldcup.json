@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-09T21:51:24.425Z",
+  "updated": "2026-07-09T23:16:24.822Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -123,7 +123,7 @@
       "score": "0–0 (4–3 pens)"
     },
     "FRA|MAR": {
-      "status": "live",
+      "status": "done",
       "winner": "FRA",
       "score": "2–0"
     },
