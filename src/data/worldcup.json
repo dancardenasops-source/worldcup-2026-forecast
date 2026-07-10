@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-10T20:56:22.812Z",
+  "updated": "2026-07-10T22:11:42.863Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -128,7 +128,7 @@
       "score": "2–0"
     },
     "BEL|ESP": {
-      "status": "live",
+      "status": "done",
       "winner": "ESP",
       "score": "2–1"
     },
