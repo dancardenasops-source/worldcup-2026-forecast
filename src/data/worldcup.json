@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-11T22:25:09.368Z",
+  "updated": "2026-07-11T23:29:12.539Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -134,8 +134,8 @@
     },
     "ENG|NOR": {
       "status": "live",
-      "winner": "NOR",
-      "score": "2–1"
+      "winner": "ENG",
+      "score": "1–2"
     },
     "ARG|SUI": {
       "status": "upcoming",
@@ -634,7 +634,7 @@
     {
       "name": "Jude Bellingham",
       "team": "ENG",
-      "goals": 5,
+      "goals": 6,
       "assists": 1
     },
     {
