@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-11T21:25:58.191Z",
+  "updated": "2026-07-11T22:25:09.368Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -134,8 +134,8 @@
     },
     "ENG|NOR": {
       "status": "live",
-      "winner": null,
-      "score": "0–0"
+      "winner": "NOR",
+      "score": "2–1"
     },
     "ARG|SUI": {
       "status": "upcoming",
@@ -632,6 +632,12 @@
       "assists": 1
     },
     {
+      "name": "Jude Bellingham",
+      "team": "ENG",
+      "goals": 5,
+      "assists": 1
+    },
+    {
       "name": "Ousmane Dembélé",
       "team": "FRA",
       "goals": 5,
@@ -646,12 +652,6 @@
     {
       "name": "Vinicius Junior",
       "team": "BRA",
-      "goals": 4,
-      "assists": 1
-    },
-    {
-      "name": "Jude Bellingham",
-      "team": "ENG",
       "goals": 4,
       "assists": 1
     }
