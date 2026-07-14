@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-12T07:17:35.215Z",
+  "updated": "2026-07-14T20:15:52.794Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -143,9 +143,9 @@
       "score": "3–1"
     },
     "ESP|FRA": {
-      "status": "upcoming",
-      "winner": null,
-      "score": null
+      "status": "live",
+      "winner": "ESP",
+      "score": "0–1"
     },
     "ARG|ENG": {
       "status": "upcoming",
@@ -643,6 +643,12 @@
       "assists": 1
     },
     {
+      "name": "Mikel Oyarzabal",
+      "team": "ESP",
+      "goals": 5,
+      "assists": 1
+    },
+    {
       "name": "Ousmane Dembélé",
       "team": "FRA",
       "goals": 5,
@@ -651,12 +657,6 @@
     {
       "name": "Julián Quiñones",
       "team": "MEX",
-      "goals": 4,
-      "assists": 1
-    },
-    {
-      "name": "Vinicius Junior",
-      "team": "BRA",
       "goals": 4,
       "assists": 1
     }
