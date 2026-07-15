@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-15T19:56:49.557Z",
+  "updated": "2026-07-15T21:09:32.720Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -148,9 +148,9 @@
       "score": "0–2"
     },
     "ARG|ENG": {
-      "status": "live",
-      "winner": null,
-      "score": "0–0"
+      "status": "done",
+      "winner": "ARG",
+      "score": "1–2"
     }
   },
   "groups": {
@@ -622,7 +622,7 @@
       "name": "Lionel Messi",
       "team": "ARG",
       "goals": 8,
-      "assists": 2
+      "assists": 4
     },
     {
       "name": "Erling Haaland",
