@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-15T21:09:32.720Z",
+  "updated": "2026-07-16T08:32:33.658Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -151,6 +151,16 @@
       "status": "done",
       "winner": "ARG",
       "score": "1–2"
+    },
+    "ENG|FRA": {
+      "status": "upcoming",
+      "winner": null,
+      "score": null
+    },
+    "ARG|ESP": {
+      "status": "upcoming",
+      "winner": null,
+      "score": null
     }
   },
   "groups": {
