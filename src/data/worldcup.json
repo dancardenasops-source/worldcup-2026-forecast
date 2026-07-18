@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-18T21:32:26.102Z",
+  "updated": "2026-07-18T22:30:05.223Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -155,7 +155,7 @@
     "ENG|FRA": {
       "status": "live",
       "winner": "ENG",
-      "score": "0–2"
+      "score": "2–4"
     },
     "ARG|ESP": {
       "status": "upcoming",
@@ -625,8 +625,8 @@
     {
       "name": "Kylian Mbappé",
       "team": "FRA",
-      "goals": 8,
-      "assists": 3
+      "goals": 9,
+      "assists": 4
     },
     {
       "name": "Lionel Messi",
