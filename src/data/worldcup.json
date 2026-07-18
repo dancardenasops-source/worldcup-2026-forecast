@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-18T22:30:05.223Z",
+  "updated": "2026-07-18T23:32:04.161Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -153,9 +153,9 @@
       "score": "1–2"
     },
     "ENG|FRA": {
-      "status": "live",
+      "status": "done",
       "winner": "ENG",
-      "score": "2–4"
+      "score": "4–6"
     },
     "ARG|ESP": {
       "status": "upcoming",
@@ -625,7 +625,7 @@
     {
       "name": "Kylian Mbappé",
       "team": "FRA",
-      "goals": 9,
+      "goals": 10,
       "assists": 4
     },
     {
@@ -641,28 +641,28 @@
       "assists": 0
     },
     {
+      "name": "Jude Bellingham",
+      "team": "ENG",
+      "goals": 7,
+      "assists": 1
+    },
+    {
       "name": "Harry Kane",
       "team": "ENG",
       "goals": 6,
       "assists": 1
     },
     {
-      "name": "Jude Bellingham",
-      "team": "ENG",
+      "name": "Ousmane Dembélé",
+      "team": "FRA",
       "goals": 6,
-      "assists": 1
+      "assists": 2
     },
     {
       "name": "Mikel Oyarzabal",
       "team": "ESP",
       "goals": 5,
       "assists": 1
-    },
-    {
-      "name": "Ousmane Dembélé",
-      "team": "FRA",
-      "goals": 5,
-      "assists": 2
     },
     {
       "name": "Julián Quiñones",
