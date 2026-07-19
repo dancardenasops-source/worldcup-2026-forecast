@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-18T23:32:04.161Z",
+  "updated": "2026-07-19T20:27:09.207Z",
   "source": "football-data.org",
   "results": {
     "CAN|RSA": {
@@ -158,9 +158,9 @@
       "score": "4–6"
     },
     "ARG|ESP": {
-      "status": "upcoming",
+      "status": "live",
       "winner": null,
-      "score": null
+      "score": "0–0"
     }
   },
   "groups": {
