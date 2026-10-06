@@ -1,7 +1,168 @@
 {
-  "updated": "2026-10-06T00:11:17.734Z",
+  "updated": "2026-10-06T06:31:44.981Z",
   "source": "football-data.org",
-  "results": {},
+  "results": {
+    "CAN|RSA": {
+      "status": "done",
+      "winner": "CAN",
+      "score": "0–1"
+    },
+    "BRA|JPN": {
+      "status": "done",
+      "winner": "BRA",
+      "score": "2–1"
+    },
+    "GER|PAR": {
+      "status": "done",
+      "winner": "PAR",
+      "score": "1–1 (3–4 pens)"
+    },
+    "MAR|NED": {
+      "status": "done",
+      "winner": "MAR",
+      "score": "1–1 (2–3 pens)"
+    },
+    "CIV|NOR": {
+      "status": "done",
+      "winner": "NOR",
+      "score": "1–2"
+    },
+    "FRA|SWE": {
+      "status": "done",
+      "winner": "FRA",
+      "score": "3–0"
+    },
+    "ECU|MEX": {
+      "status": "done",
+      "winner": "MEX",
+      "score": "2–0"
+    },
+    "COD|ENG": {
+      "status": "done",
+      "winner": "ENG",
+      "score": "2–1"
+    },
+    "BEL|SEN": {
+      "status": "done",
+      "winner": "BEL",
+      "score": "3–2"
+    },
+    "BIH|USA": {
+      "status": "done",
+      "winner": "USA",
+      "score": "2–0"
+    },
+    "AUT|ESP": {
+      "status": "done",
+      "winner": "ESP",
+      "score": "3–0"
+    },
+    "CRO|POR": {
+      "status": "done",
+      "winner": "POR",
+      "score": "2–1"
+    },
+    "ALG|SUI": {
+      "status": "done",
+      "winner": "SUI",
+      "score": "2–0"
+    },
+    "AUS|EGY": {
+      "status": "done",
+      "winner": "EGY",
+      "score": "1–1 (2–4 pens)"
+    },
+    "ARG|CPV": {
+      "status": "done",
+      "winner": "ARG",
+      "score": "3–2"
+    },
+    "COL|GHA": {
+      "status": "done",
+      "winner": "COL",
+      "score": "1–0"
+    },
+    "CAN|MAR": {
+      "status": "done",
+      "winner": "MAR",
+      "score": "0–3"
+    },
+    "FRA|PAR": {
+      "status": "done",
+      "winner": "FRA",
+      "score": "0–1"
+    },
+    "BRA|NOR": {
+      "status": "done",
+      "winner": "NOR",
+      "score": "1–2"
+    },
+    "ENG|MEX": {
+      "status": "done",
+      "winner": "ENG",
+      "score": "2–3"
+    },
+    "ESP|POR": {
+      "status": "done",
+      "winner": "ESP",
+      "score": "0–1"
+    },
+    "BEL|USA": {
+      "status": "done",
+      "winner": "BEL",
+      "score": "1–4"
+    },
+    "ARG|EGY": {
+      "status": "done",
+      "winner": "ARG",
+      "score": "3–2"
+    },
+    "COL|SUI": {
+      "status": "done",
+      "winner": "SUI",
+      "score": "0–0 (4–3 pens)"
+    },
+    "FRA|MAR": {
+      "status": "done",
+      "winner": "FRA",
+      "score": "2–0"
+    },
+    "BEL|ESP": {
+      "status": "done",
+      "winner": "ESP",
+      "score": "2–1"
+    },
+    "ENG|NOR": {
+      "status": "done",
+      "winner": "ENG",
+      "score": "1–2"
+    },
+    "ARG|SUI": {
+      "status": "done",
+      "winner": "ARG",
+      "score": "3–1"
+    },
+    "ESP|FRA": {
+      "status": "done",
+      "winner": "ESP",
+      "score": "0–2"
+    },
+    "ARG|ENG": {
+      "status": "done",
+      "winner": "ARG",
+      "score": "1–2"
+    },
+    "ENG|FRA": {
+      "status": "done",
+      "winner": "ENG",
+      "score": "4–6"
+    },
+    "ARG|ESP": {
+      "status": "done",
+      "winner": "ESP",
+      "score": "1–0"
+    }
+  },
   "scorers": [
     {
       "name": "Kylian Mbappé",
